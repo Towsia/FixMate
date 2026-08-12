@@ -12,7 +12,10 @@ const UserSchema = new mongoose.Schema({
   phone: { type: String },
   address: { type: String },
   profileImage: { type: String },
-  isVerified: { type: Boolean, default: false }
+  isVerified: { type: Boolean, default: false },
+  verificationToken: { type: String },
+  resetPasswordToken: { type: String },
+  resetPasswordExpire: { type: Date }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', UserSchema);
