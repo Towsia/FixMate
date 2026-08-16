@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FixMate · Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fcfcfc;
+            color: #1e1e2f;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 0;
+            border-bottom: 1px solid #eaecf0;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0b1a33;
+        }
+        .logo span {
+            color: #2a7de1;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            font-weight: 500;
+            color: #2d3a4f;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover {
+            color: #2a7de1;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #d0d5dd;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1e1e2f;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-outline:hover {
+            border-color: #2a7de1;
+            color: #2a7de1;
+        }
+
+        .btn-primary {
+            background: #0b1a33;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-primary:hover {
+            background: #1f3a6b;
+            transform: scale(1.02);
+        }
+
+        /* ===== AUTH MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            padding: 36px 32px;
+            border-radius: 32px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #98a2b3;
+            background: none;
+            border: none;
+        }
+        .modal-close:hover {
+            color: #1e1e2f;
+        }
+
+        .modal .logo-sm {
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #0b1a33;
+            margin-bottom: 4px;
+        }
+        .modal .logo-sm span {
+            color: #2a7de1;
+        }
+        .modal .subtitle {
+            text-align: center;
+            color: #475467;
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            background: #f1f4f9;
+            border-radius: 40px;
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.25s;
+            color: #475467;
+            border: none;
+            background: transparent;
+            font-size: 0.95rem;
+        }
+        .tab.active {
+            background: white;
+            color: #0b1a33;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #1e2a3d;
+            margin-bottom: 4px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #d0d5dd;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            background: #fcfcfd;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #2a7de1;
+            box-shadow: 0 0 0 4px rgba(42, 125, 225, 0.08);
+        }
+
+        .btn-full {
+            width: 100%;
+            padding: 14px;
+            background: #0b1a33;
+            border: none;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 4px;
+        }
+        .btn-full:hover {
+            background: #1f3a6b;
+        }
+
+        .message-box {
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-bottom: 14px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .message-box.error {
+            display: block;
+            background: #fef3f2;
+            color: #b42318;
+            border: 1px solid #fecdca;
+        }
+        .message-box.success {
+            display: block;
+            background: #ecfdf3;
+            color: #067647;
+            border: 1px solid #abf0d5;
+        }
+
+        .forgot-link {
+            text-align: right;
+            margin-top: 6px;
+        }
+        .forgot-link a {
+            color: #2a7de1;
+            font-size: 0.85rem;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .forgot-link a:hover {
+            text-decoration: underline;
+        }
+
+        .switch-text {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 0.9rem;
+            color: #475467;
+        }
+        .switch-text a {
+            color: #2a7de1;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .switch-text a:hover {
+            text-decoration: underline;
+        }
+
+        .form.hidden {
+            display: none;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            padding: 48px 0 40px;
+            gap: 40px;
+        }
+
+        .hero-content {
+            flex: 1 1 480px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: #eef4ff;
+            color: #1f4f8a;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 6px 18px;
+            border-radius: 40px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: 3.2rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #0b1a33;
+            margin-bottom: 18px;
+        }
+        .hero h1 span {
+            color: #2a7de1;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #475467;
+            max-width: 520px;
+            margin-bottom: 28px;
+        }
+
+        .search-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: white;
+            padding: 8px 8px 8px 20px;
+            border-radius: 60px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eaecf0;
+            max-width: 540px;
+        }
+        .search-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            padding: 10px 0;
+            min-width: 160px;
+            background: transparent;
+        }
+        .search-box button {
+            background: #0b1a33;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .search-box button:hover {
+            background: #1f3a6b;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 36px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+        .hero-stats div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        .hero-stats i {
+            color: #2a7de1;
+            font-size: 1.3rem;
+        }
+
+        .hero-image {
+            flex: 1 1 400px;
+            background: linear-gradient(145deg, #eef4ff, #ffffff);
+            border-radius: 40px;
+            padding: 30px 20px;
+            text-align: center;
+            border: 1px solid #eaecf0;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .hero-image i {
+            font-size: 4rem;
+            color: #2a7de1;
+            margin-bottom: 12px;
+        }
+        .hero-image .big-number {
+            font-size: 3.2rem;
+            font-weight: 700;
+            color: #0b1a33;
+        }
+        .hero-image .label {
+            font-size: 1rem;
+            color: #475467;
+        }
+
+        /* ===== SERVICE CARDS WITH IMAGES ===== */
+        .services-section {
+            margin: 48px 0;
+        }
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0b1a33;
+            margin-bottom: 8px;
+        }
+        .section-sub {
+            color: #475467;
+            margin-bottom: 32px;
+            font-size: 1.1rem;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 28px;
+        }
+
+        .service-card {
+            background: white;
+            padding: 28px 20px;
+            border-radius: 28px;
+            border: 1px solid #eaecf0;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .service-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+        }
+        .service-card .icon {
+            font-size: 2.8rem;
+            color: #2a7de1;
+            margin-bottom: 12px;
+        }
+        .service-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0b1a33;
+            margin-bottom: 4px;
+        }
+        .service-card p {
+            font-size: 0.9rem;
+            color: #475467;
+        }
+
+        /* ===== STATS ===== */
+        .stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 30px;
+            background: #f7f9fd;
+            padding: 40px 32px;
+            border-radius: 40px;
+            margin: 20px 0 48px;
+            border: 1px solid #eaecf0;
+        }
+        .stat-item {
+            flex: 1 1 140px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #0b1a33;
+        }
+        .stat-label {
+            color: #475467;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* ===== TESTIMONIALS ===== */
+        .testimonial-section {
+            margin: 48px 0;
+        }
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 28px;
+        }
+        .testimonial-card {
+            background: white;
+            padding: 28px 24px;
+            border-radius: 28px;
+            border: 1px solid #eaecf0;
+            transition: 0.2s;
+        }
+        .testimonial-card:hover {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+        .stars {
+            color: #f5b342;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+        .testimonial-card p {
+            font-size: 1rem;
+            color: #1e2a3d;
+            margin-bottom: 16px;
+        }
+        .testimonial-card .author {
+            font-weight: 600;
+            color: #0b1a33;
+        }
+        .testimonial-card .role {
+            font-size: 0.9rem;
+            color: #667185;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            border-top: 1px solid #eaecf0;
+            padding: 32px 0;
+            margin-top: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 24px;
+            color: #475467;
+        }
+        footer .footer-links {
+            display: flex;
+            gap: 28px;
+        }
+        footer a {
+            text-decoration: none;
+            color: #475467;
+            transition: 0.2s;
+        }
+        footer a:hover {
+            color: #0b1a33;
+        }
+
+        @media (max-width: 700px) {
+            .navbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nav-links {
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 16px;
+            }
+            .nav-actions {
+                justify-content: center;
+            }
+            .hero h1 {
+                font-size: 2.4rem;
+            }
+            .search-box {
+                border-radius: 30px;
+                padding: 8px;
+            }
+            .search-box input {
+                min-width: 120px;
+            }
+            .hero-image {
+                min-height: 160px;
+            }
+            .stats-row {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<div class="container">
+    <nav class="navbar">
+        <div class="logo">Fix<span>Mate</span></div>
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Services</a>
+            <a href="#">Pricing</a>
+            <a href="#">Testimonials</a>
+            <a href="#">Contact</a>
+        </div>
+        <div class="nav-actions">
+            <button class="btn-outline" onclick="openModal('signin')">Log In</button>
+            <button class="btn-primary" onclick="openModal('signup')">Sign Up</button>
+        </div>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge"><i class="fas fa-shield-alt"></i> Trusted · Verified · Insured</div>
+            <h1>Reliable Home Services, <br /><span>Right at Your Doorstep</span></h1>
+            <p>From cleaning and repairs to expert maintenance — book trusted professionals with just a click.</p>
+
+            <div class="search-box">
+                <input type="text" placeholder="Search for a service..." />
+                <button><i class="fas fa-search"></i> Search</button>
+            </div>
+
+            <div class="hero-stats">
+                <div><i class="fas fa-star"></i> 4.8/5 · 12k+ reviews</div>
+                <div><i class="fas fa-clock"></i> 95% on-time</div>
+                <div><i class="fas fa-user-check"></i> 500+ pros</div>
+            </div>
+        </div>
+
+        <div class="hero-image">
+            <i class="fas fa-tools"></i>
+            <div class="big-number">15k+</div>
+            <div class="label">Homes served across cities</div>
+            <div style="margin-top: 12px; font-size: 0.95rem; color: #2a7de1;">
+                <i class="fas fa-check-circle"></i> 4.9/5 customer rating
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SERVICES WITH IMAGES (ICONS) ===== -->
+    <section class="services-section">
+        <h2 class="section-title">Our Services</h2>
+        <p class="section-sub">Professional home services at your fingertips</p>
+        <div class="service-grid">
+            <div class="service-card">
+                <div class="icon"><i class="fas fa-broom"></i></div>
+                <h3>Cleaning</h3>
+                <p>Deep cleaning, move-in/out, regular maintenance</p>
+            </div>
+            <div class="service-card">
+                <div class="icon"><i class="fas fa-tools"></i></div>
+                <h3>Repairs</h3>
+                <p>Plumbing, electrical, appliance repair</p>
+            </div>
+            <div class="service-card">
+                <div class="icon"><i class="fas fa-paint-roller"></i></div>
+                <h3>Painting</h3>
+                <p>Interior & exterior painting, wallpaper</p>
+            </div>
+            <div class="service-card">
+                <div class="icon"><i class="fas fa-tree"></i></div>
+                <h3>Gardening</h3>
+                <p>Lawn care, landscaping, tree trimming</p>
+            </div>
+            <div class="service-card">
+                <div class="icon"><i class="fas fa-wrench"></i></div>
+                <h3>Handyman</h3>
+                <p>General maintenance, furniture assembly</p>
+            </div>
+            <div class="service-card">
+                <div class="icon"><i class="fas fa-bolt"></i></div>
+                <h3>Electrical</h3>
+                <p>Wiring, installation, safety checks</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== STATS ===== -->
+    <div class="stats-row">
+        <div class="stat-item"><div class="stat-number">15k+</div><div class="stat-label">Homes Served</div></div>
+        <div class="stat-item"><div class="stat-number">500+</div><div class="stat-label">Certified Pros</div></div>
+        <div class="stat-item"><div class="stat-number">95%</div><div class="stat-label">On-Time Service</div></div>
+        <div class="stat-item"><div class="stat-number">4.9/5</div><div class="stat-label">Customer Rating</div></div>
+    </div>
+
+    <!-- ===== TESTIMONIALS ===== -->
+    <section class="testimonial-section">
+        <h2 class="section-title">What Our Customers Say</h2>
+        <p class="section-sub">Thousands of homeowners trust FixMate for their home needs.</p>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                <p>“FixMate made it so easy to find a plumber within 20 minutes. Professional and affordable!”</p>
+                <div class="author">Sophia Lee</div>
+                <div class="role">Homeowner · Toronto</div>
+            </div>
+            <div class="testimonial-card">
+                <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                <p>“I love the transparency — I saw the price upfront and the electrician arrived exactly on time.”</p>
+                <div class="author">James Carter</div>
+                <div class="role">Homeowner · Vancouver</div>
+            </div>
+            <div class="testimonial-card">
+                <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                <p>“From cleaning to minor repairs, FixMate has been a lifesaver. Highly recommended!”</p>
+                <div class="author">Priya Sharma</div>
+                <div class="role">Homeowner · Calgary</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div>© 2026 FixMate · All rights reserved.</div>
+        <div class="footer-links">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+        </div>
+    </footer>
+</div>
+
+<!-- ============================================= -->
+<!-- ========== AUTH MODAL ========== -->
+<!-- ============================================= -->
+
+<div class="modal-overlay" id="authModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+
+        <div class="logo-sm">Fix<span>Mate</span></div>
+        <div class="subtitle" id="modalSubtitle">Sign in to your account</div>
+
+        <!-- Message Box -->
+        <div id="modalMessage" class="message-box"></div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" id="tabSignIn" onclick="switchTab('signin')">Sign In</button>
+            <button class="tab" id="tabSignUp" onclick="switchTab('signup')">Sign Up</button>
+        </div>
+
+        <!-- SIGN IN FORM -->
+        <form id="signinForm" class="form" onsubmit="handleSignIn(event)">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" placeholder="you@example.com" required />
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••" required />
+            </div>
+            <div class="forgot-link">
+                <a onclick="alert('Reset link sent to your email (if registered).')">Forgot password?</a>
+            </div>
+            <button type="submit" class="btn-full">Sign In</button>
+            <div class="switch-text">
+                Don't have an account? <a onclick="switchTab('signup')">Sign Up</a>
+            </div>
+        </form>
+
+        <!-- SIGN UP FORM -->
+        <form id="signupForm" class="form hidden" onsubmit="handleSignUp(event)">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="signupName" placeholder="Towsia Masnun" required />
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="signupEmail" placeholder="you@example.com" required />
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="signupPassword" placeholder="••••••••" required />
+            </div>
+            <button type="submit" class="btn-full">Create Account</button>
+            <div class="switch-text">
+                Already have an account? <a onclick="switchTab('signin')">Sign In</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================= -->
+<!-- ========== JAVASCRIPT ========== -->
+<!-- ============================================= -->
+
+<script>
+    // ===== Open Modal =====
+    function openModal(tab) {
+        document.getElementById('authModal').classList.add('active');
+        switchTab(tab);
+        const msg = document.getElementById('modalMessage');
+        msg.className = 'message-box';
+        msg.textContent = '';
+    }
+
+    function closeModal() {
+        document.getElementById('authModal').classList.remove('active');
+    }
+
+    document.getElementById('authModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // ===== Switch Tab =====
+    function switchTab(tab) {
+        const signinForm = document.getElementById('signinForm');
+        const signupForm = document.getElementById('signupForm');
+        const tabSignIn = document.getElementById('tabSignIn');
+        const tabSignUp = document.getElementById('tabSignUp');
+        const subtitle = document.getElementById('modalSubtitle');
+
+        if (tab === 'signin') {
+            signinForm.classList.remove('hidden');
+            signupForm.classList.add('hidden');
+            tabSignIn.classList.add('active');
+            tabSignUp.classList.remove('active');
+            subtitle.textContent = 'Sign in to your account';
+        } else {
+            signinForm.classList.add('hidden');
+            signupForm.classList.remove('hidden');
+            tabSignUp.classList.add('active');
+            tabSignIn.classList.remove('active');
+            subtitle.textContent = 'Create your FixMate account';
+        }
+
+        const msg = document.getElementById('modalMessage');
+        msg.className = 'message-box';
+        msg.textContent = '';
+    }
+
+    function showMessage(text, type) {
+        const box = document.getElementById('modalMessage');
+        box.textContent = text;
+        box.className = 'message-box ' + type;
+    }
+
+    // ===== Handle Sign In =====
+    async function handleSignIn(e) {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        if (!email || !password) {
+            showMessage('Please fill in all fields.', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showMessage('✅ Login successful! Welcome ' + data.user.name, 'success');
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                setTimeout(() => {
+                    closeModal();
+                    // You can redirect to dashboard here
+                    // window.location.href = '/dashboard.html';
+                }, 1500);
+            } else {
+                showMessage('❌ ' + data.message, 'error');
+            }
+        } catch (error) {
+            showMessage('❌ Server error. Make sure backend is running.', 'error');
+            console.error('Login error:', error);
+        }
+    }
+
+    // ===== Handle Sign Up =====
+    async function handleSignUp(e) {
+        e.preventDefault();
+        const name = document.getElementById('signupName').value;
+        const email = document.getElementById('signupEmail').value;
+        const password = document.getElementById('signupPassword').value;
+
+        if (!name || !email || !password) {
+            showMessage('Please fill in all fields.', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showMessage('✅ Registration successful! Please check your email to verify.', 'success');
+                // Auto-fill email in login form after 2s
+                setTimeout(() => {
+                    switchTab('signin');
+                    document.getElementById('loginEmail').value = email;
+                }, 2000);
+            } else {
+                showMessage('❌ ' + data.message, 'error');
+            }
+        } catch (error) {
+            showMessage('❌ Server error. Make sure backend is running.', 'error');
+            console.error('Registration error:', error);
+        }
+    }
+
+    // Escape key to close
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeModal();
+    });
+</script>
+
+</body>
+</html>
