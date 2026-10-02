@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About · FixMate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="container">
+    <nav class="navbar">
+        <div class="logo">Fix<span>Mate</span></div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="index.html#services">Services</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <div class="nav-actions">
+            <button class="btn-outline" onclick="openModal('signin')">Log In</button>
+            <button class="btn-primary" onclick="openModal('signup')">Sign Up</button>
+        </div>
+    </nav>
+
+    <div class="about-content">
+        <h1>About FixMate</h1>
+        <p>FixMate is a modern home services platform connecting homeowners with trusted, verified professionals. From cleaning and repairs to expert maintenance, we make booking services simple, transparent, and reliable.</p>
+        <p>Our mission is to bring convenience and quality to every home in <strong>Chattogram</strong> and beyond by providing a seamless platform for booking professional services.</p>
+
+        <h2 style="margin-top:32px;margin-bottom:16px;color:#0b1a33;">Why Choose Us?</h2>
+        <ul>
+            <li><i class="fas fa-check-circle"></i> Verified & Insured Professionals</li>
+            <li><i class="fas fa-check-circle"></i> Transparent Pricing</li>
+            <li><i class="fas fa-check-circle"></i> On-Time Service Guarantee</li>
+            <li><i class="fas fa-check-circle"></i> 24/7 Customer Support</li>
+            <li><i class="fas fa-check-circle"></i> Secure Booking System</li>
+            <li><i class="fas fa-check-circle"></i> Serving Chattogram & Nearby Areas</li>
+        </ul>
+    </div>
+
+    <footer>
+        <div>© 2026 FixMate · All rights reserved.</div>
+        <div class="footer-links">
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </footer>
+</div>
+
+<!-- ===== AUTH MODAL ===== -->
+<div class="modal-overlay" id="authModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div class="logo-sm">Fix<span>Mate</span></div>
+        <div class="subtitle">Sign in to your account</div>
+        <div id="modalMessage" class="message-box"></div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('signin')">Sign In</button>
+            <button class="tab" onclick="switchTab('signup')">Sign Up</button>
+        </div>
+
+        <form id="signinForm" class="form" onsubmit="handleSignIn(event)">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" placeholder="you@example.com" required />
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••" required />
+            </div>
+            <button type="submit" class="btn-full">Sign In</button>
+        </form>
+
+        <form id="signupForm" class="form hidden" onsubmit="handleSignUp(event)">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="signupName" placeholder="Towsia Masnun" required />
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="signupEmail" placeholder="you@example.com" required />
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="signupPassword" placeholder="••••••••" required />
+            </div>
+            <button type="submit" class="btn-full">Create Account</button>
+        </form>
+    </div>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>
