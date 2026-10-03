@@ -17,6 +17,7 @@
         <div class="nav-links">
             <a href="index.html">Home</a>
             <a href="services.html">Services</a>
+            <a href="my-bookings.html">My Bookings</a>
             <a href="about.html">About</a>
             <a href="contact.html">Contact</a>
         </div>
@@ -78,7 +79,7 @@
         </div>
     </section>
 
-    
+    <!-- ===== STATS ===== -->
     <div class="stats-row">
         <div class="stat-item"><div class="stat-number">15k+</div><div class="stat-label">Homes Served</div></div>
         <div class="stat-item"><div class="stat-number">500+</div><div class="stat-label">Certified Pros</div></div>
@@ -112,7 +113,7 @@
         </div>
     </section>
 
-    
+    <!-- ===== FOOTER ===== -->
     <footer>
         <div>© 2026 FixMate · All rights reserved.</div>
         <div class="footer-links">
@@ -125,7 +126,9 @@
     </footer>
 </div>
 
+<!-- ============================================= -->
 <!-- ===== AUTH MODAL ===== -->
+<!-- ============================================= -->
 <div class="modal-overlay" id="authModal">
     <div class="modal">
         <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -171,7 +174,159 @@
     </div>
 </div>
 
+<!-- ============================================= -->
+<!-- ===== BOOKING MODAL ===== -->
+<!-- ============================================= -->
+<div class="modal-overlay" id="bookingModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeBookingModal()">&times;</button>
+        <div class="logo-sm">Book <span>Service</span></div>
+        <div class="subtitle">Fill in your booking details</div>
+        <div id="bookingMessage" class="message-box"></div>
+        <form onsubmit="submitBooking(event)">
+            <input type="hidden" id="bookingServiceId" />
+            <div class="form-group">
+                <label>Service</label>
+                <input type="text" id="bookingServiceName" readonly style="background:#f1f4f9;" />
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="bookingDate" required />
+            </div>
+            <div class="form-group">
+                <label>Time</label>
+                <input type="time" id="bookingTime" required />
+            </div>
+            <div class="form-group">
+                <label>Address</label>
+                <input type="text" id="bookingAddress" placeholder="Your full address" required />
+            </div>
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" id="bookingPhone" placeholder="01XXXXXXXXX" required />
+            </div>
+            <div class="form-group">
+                <label>Notes (Optional)</label>
+                <input type="text" id="bookingNotes" placeholder="Any special request" />
+            </div>
+            <button type="submit" class="btn-full">Confirm Booking</button>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================= -->
+<!-- ===== JAVASCRIPT ===== -->
+<!-- ============================================= -->
 <script src="js/main.js"></script>
-<script src="js/services.js"></script>
+<script>
+    // ⚠️ তোমার Render URL
+    const API = 'https://fixmate-backend-jhlp.onrender.com/api';
+
+    // ===== Load Services Preview =====
+    async function loadServicesPreview() {
+        try {
+            const res = await fetch(`${API}/services?limit=6`);
+            const data = await res.json();
+
+            const grid = document.getElementById('servicePreviewGrid');
+            if (!grid) return;
+
+            if (data.success && data.services.length > 0) {
+                grid.innerHTML = data.services.map(s => `
+                    <div class="service-card">
+                        <div class="icon"><i class="fas fa-tools"></i></div>
+                        <h3>${s.title}</h3>
+                        <p>${s.description.substring(0, 60)}...</p>
+                        <div class="price">৳${s.price}</div>
+                        <button class="btn-book-now" onclick="bookService('${s._id}', '${s.title}')">
+                            <i class="fas fa-calendar-check"></i> Book Now
+                        </button>
+                    </div>
+                `).join('');
+            } else {
+                grid.innerHTML = '';
+            }
+        } catch (error) {
+            console.log('Could not load services:', error.message);
+        }
+    }
+
+    // ===== Search =====
+    function searchServices() {
+        const query = document.getElementById('searchInput')?.value || '';
+        if (query) {
+            window.location.href = `services.html?search=${query}`;
+        } else {
+            window.location.href = 'services.html';
+        }
+    }
+
+    // ===== Open Booking Modal =====
+    function bookService(id, name) {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Please login first to book this service.');
+            openModal('signin');
+            return;
+        }
+        document.getElementById('bookingServiceId').value = id;
+        document.getElementById('bookingServiceName').value = name;
+        document.getElementById('bookingModal').classList.add('active');
+    }
+
+    // ===== Close Booking Modal =====
+    function closeBookingModal() {
+        document.getElementById('bookingModal').classList.remove('active');
+    }
+
+    // ===== Submit Booking =====
+    async function submitBooking(e) {
+        e.preventDefault();
+        const token = localStorage.getItem('token');
+        const serviceId = document.getElementById('bookingServiceId').value;
+        const date = document.getElementById('bookingDate').value;
+        const time = document.getElementById('bookingTime').value;
+        const address = document.getElementById('bookingAddress').value;
+        const phone = document.getElementById('bookingPhone').value;
+        const notes = document.getElementById('bookingNotes').value;
+
+        const msgBox = document.getElementById('bookingMessage');
+
+        try {
+            const res = await fetch(`${API}/bookings`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ serviceId, date, time, address, phone, notes })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                msgBox.textContent = '✅ Booking created successfully!';
+                msgBox.className = 'message-box success';
+                setTimeout(() => {
+                    closeBookingModal();
+                    window.location.href = 'my-bookings.html';
+                }, 1500);
+            } else {
+                msgBox.textContent = '❌ ' + data.message;
+                msgBox.className = 'message-box error';
+            }
+        } catch (error) {
+            msgBox.textContent = '❌ Server error. Make sure backend is running.';
+            msgBox.className = 'message-box error';
+        }
+    }
+
+    // Close Booking Modal on Outside Click
+    document.getElementById('bookingModal').addEventListener('click', function(e) {
+        if (e.target === this) closeBookingModal();
+    });
+
+    // Load on Page Start
+    window.addEventListener('DOMContentLoaded', loadServicesPreview);
+</script>
 </body>
 </html>

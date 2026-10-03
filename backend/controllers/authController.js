@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../utils/email');
 
-// ==================== Registration (Towsia) ====================
+// ==================== Registration ====================
 exports.register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -18,6 +18,7 @@ exports.register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const verificationToken = jwt.sign(
       { email }, 
       process.env.JWT_SECRET, 
@@ -29,24 +30,30 @@ exports.register = async (req, res) => {
       email,
       password: hashedPassword,
       role: role || 'user',
+      isVerified: true,  // ← Auto Verified
       verificationToken
     });
 
-    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
-    await sendEmail({
-      email: user.email,
-      subject: 'Verify your email - FixMate',
-      html: `
-        <h1>Welcome to FixMate!</h1>
-        <p>Please click the link below to verify your email:</p>
-        <a href="${verificationUrl}">${verificationUrl}</a>
-        <p>This link will expire in 24 hours.</p>
-      `
-    });
+    // Email পাঠানোর চেষ্টা (Optional)
+    try {
+      const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+      await sendEmail({
+        email: user.email,
+        subject: 'Verify your email - FixMate',
+        html: `
+          <h1>Welcome to FixMate!</h1>
+          <p>Please click the link below to verify your email:</p>
+          <a href="${verificationUrl}">${verificationUrl}</a>
+          <p>This link will expire in 24 hours.</p>
+        `
+      });
+    } catch (emailError) {
+      console.log('Email sending failed:', emailError.message);
+    }
 
     res.status(201).json({
       success: true,
-      message: 'User registered! Please verify your email.',
+      message: 'User registered successfully! You can now login.',
       user: {
         id: user._id,
         name: user.name,
@@ -63,7 +70,7 @@ exports.register = async (req, res) => {
   }
 };
 
-// ==================== Verify Email (Towsia) ====================
+// ==================== Verify Email ====================
 exports.verifyEmail = async (req, res) => {
   try {
     const { token } = req.query;
@@ -99,16 +106,11 @@ exports.verifyEmail = async (req, res) => {
   }
 };
 
-// =============================================
-// ============ Sabina-র যোগ করা অংশ ============
-// =============================================
-
-// ==================== Login API ====================
+// ==================== Login ====================
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 1. User খুঁজে বের করো
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({
@@ -117,15 +119,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // 2. Check if email is verified
-    if (!user.isVerified) {
-      return res.status(401).json({
-        success: false,
-        message: 'Please verify your email first'
-      });
-    }
-
-    // 3. Password Match করো
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
       return res.status(401).json({
@@ -134,7 +127,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // 4. JWT Token Generate করো
     const token = jwt.sign(
       { 
         id: user._id, 
@@ -145,7 +137,6 @@ exports.login = async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    // 5. Response
     res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -167,7 +158,7 @@ exports.login = async (req, res) => {
   }
 };
 
-// ==================== Forgot Password API ====================
+// ==================== Forgot Password ====================
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -199,7 +190,6 @@ exports.forgotPassword = async (req, res) => {
         <p>Click the link below to reset your password:</p>
         <a href="${resetUrl}">${resetUrl}</a>
         <p>This link will expire in 1 hour.</p>
-        <p>If you didn't request this, please ignore.</p>
       `
     });
 
@@ -216,7 +206,7 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-// ==================== Reset Password API ====================
+// ==================== Reset Password ====================
 exports.resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
@@ -255,7 +245,7 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-// ==================== Logout (Jannat-এর জন্য) ====================
+// ==================== Logout ====================
 exports.logout = async (req, res) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
