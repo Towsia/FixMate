@@ -745,3 +745,67 @@ footer a:hover { color: #0b1a33; }
 .price::before {
     content: '৳';
 }
+/* ===== SERVICE IMAGE ===== */
+.service-card {
+    padding: 0 0 24px 0;
+    overflow: hidden;
+}
+
+.service-image {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    border-radius: 28px 28px 0 0;
+}
+
+.service-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.service-card:hover .service-image img {
+    transform: scale(1.08);
+}
+
+.category-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(11, 26, 51, 0.9);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    backdrop-filter: blur(4px);
+}
+
+.category-badge i {
+    margin-right: 4px;
+    color: #2a7de1;
+}
+
+.service-card h3 {
+    padding: 0 20px;
+    margin-top: 16px;
+}
+
+.service-card p {
+    padding: 0 20px;
+}
+
+.service-card .price {
+    padding: 0 20px;
+}
+
+.service-card .location {
+    padding: 0 20px;
+}
+
+.service-card .btn-book-now {
+    margin: 12px 20px 0;
+    width: calc(100% - 40px);
+}

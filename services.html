@@ -150,14 +150,52 @@
 <!-- ============================================= -->
 <!-- ===== JAVASCRIPT ===== -->
 <!-- ============================================= -->
-<!-- শুধু main.js Load করো, API সেখানে আছে -->
 <script src="js/main.js"></script>
 <script>
-    // ⚠️ API এখানে Declare করো না, main.js এ আছে
-    // var API = ... ← এটা লিখবে না
-
+    
     let allServices = [];
     let allCategories = [];
+
+    // ===== Service Images Map (Service Title → Image URL) =====
+    const serviceImages = {
+        "Home Cleaning": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop",
+        "Electrician Service": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop",
+        "Plumber Service": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+        "Painting Service": "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=400&h=300&fit=crop",
+        "Gardening Service": "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop",
+        "Handyman Service": "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop",
+        "AC Repair Service": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop",
+        "Refrigerator Repair": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop",
+        "Washing Machine Repair": "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=400&h=300&fit=crop",
+        "TV Repair Service": "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&h=300&fit=crop",
+        "Computer Repair": "https://images.unsplash.com/photo-1588702547919-26089e690ecc?w=400&h=300&fit=crop",
+        "Mobile Repair": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=300&fit=crop",
+        "Sofa Cleaning": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop",
+        "Carpet Cleaning": "https://images.unsplash.com/photo-1600585152220-90363fe7e115?w=400&h=300&fit=crop",
+        "Pest Control": "https://images.unsplash.com/photo-1632935190508-a4a1f7b3b3b3?w=400&h=300&fit=crop",
+        "Water Tank Cleaning": "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop",
+        "CCTV Installation": "https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=400&h=300&fit=crop",
+        "Interior Design": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=400&h=300&fit=crop",
+        "Furniture Assembly": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop",
+        "Moving Service": "https://images.unsplash.com/photo-1600518464441-9154a4dea21b?w=400&h=300&fit=crop",
+        "Roof Repair": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop",
+        "Window Cleaning": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop",
+        "Solar Panel Installation": "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&h=300&fit=crop",
+        "Generator Repair": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop",
+        "Water Purifier Service": "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop"
+    };
+
+    // ===== Category Icons Map =====
+    const categoryIcons = {
+        "Cleaning": "fas fa-broom",
+        "Repairing": "fas fa-tools",
+        "Electrical": "fas fa-bolt",
+        "Painting": "fas fa-paint-roller",
+        "Gardening": "fas fa-tree",
+        "Plumbing": "fas fa-wrench",
+        "Appliance": "fas fa-plug",
+        "Others": "fas fa-ellipsis-h"
+    };
 
     // ===== Load Services + Categories =====
     async function loadAllServices() {
@@ -170,6 +208,7 @@
             const catData = await catRes.json();
             allCategories = catData.categories || [];
 
+            // Populate Category Filter
             const catFilter = document.getElementById('categoryFilter');
             if (catFilter) {
                 catFilter.innerHTML = '<option value="">All Categories</option>';
@@ -195,18 +234,29 @@
         if (!grid) return;
 
         if (services.length > 0) {
-            grid.innerHTML = services.map(s => `
-                <div class="service-card">
-                    <div class="icon"><i class="fas fa-tools"></i></div>
-                    <h3>${s.title}</h3>
-                    <p>${s.description.substring(0, 80)}...</p>
-                    <div class="price">৳${s.price}</div>
-                    <div class="location"><i class="fas fa-map-marker-alt"></i> ${s.location || 'N/A'}</div>
-                    <button class="btn-book-now" onclick="bookService('${s._id}', '${s.title}')">
-                        <i class="fas fa-calendar-check"></i> Book Now
-                    </button>
-                </div>
-            `).join('');
+            grid.innerHTML = services.map(s => {
+                const imgUrl = serviceImages[s.title] || "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop";
+                const catName = s.categoryId?.name || 'Others';
+                const catIcon = categoryIcons[catName] || 'fas fa-tools';
+
+                return `
+                    <div class="service-card">
+                        <div class="service-image">
+                            <img src="${imgUrl}" alt="${s.title}" />
+                            <span class="category-badge">
+                                <i class="${catIcon}"></i> ${catName}
+                            </span>
+                        </div>
+                        <h3>${s.title}</h3>
+                        <p>${s.description.substring(0, 70)}...</p>
+                        <div class="price">৳${s.price}</div>
+                        <div class="location"><i class="fas fa-map-marker-alt"></i> ${s.location || 'N/A'}</div>
+                        <button class="btn-book-now" onclick="bookService('${s._id}', '${s.title}')">
+                            <i class="fas fa-calendar-check"></i> Book Now
+                        </button>
+                    </div>
+                `;
+            }).join('');
         } else {
             grid.innerHTML = '<p style="text-align:center;grid-column:1/-1;color:#98a2b3;padding:40px;">No services found.</p>';
         }
@@ -227,7 +277,10 @@
         }
 
         if (category) {
-            filtered = filtered.filter(s => s.categoryId === category);
+            filtered = filtered.filter(s => {
+                const catId = s.categoryId?._id || s.categoryId;
+                return catId === category;
+            });
         }
 
         renderServices(filtered);
