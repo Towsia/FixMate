@@ -11,7 +11,7 @@
 <body>
 
 <div class="container">
-    <!-- ===== NAVBAR ===== -->
+   
     <nav class="navbar">
         <div class="logo">Fix<span>Mate</span></div>
         <div class="nav-links">
@@ -27,7 +27,7 @@
         </div>
     </nav>
 
-    <!-- ===== HERO ===== -->
+    
     <section class="hero">
         <div class="hero-content">
             <div class="hero-badge"><i class="fas fa-shield-alt"></i> Trusted · Verified · Insured</div>
@@ -46,7 +46,7 @@
             </div>
         </div>
 
-        <!-- ===== MULTIPLE IMAGES ===== -->
+        
         <div class="hero-image">
             <div class="image-collage">
                 <div class="img-box img-large">
@@ -66,7 +66,7 @@
         </div>
     </section>
 
-    <!-- ===== SERVICES PREVIEW ===== -->
+    
     <section class="services-preview-section">
         <h2 class="section-title">Our Popular Services</h2>
         <p class="section-sub">
@@ -75,11 +75,11 @@
             Book verified professionals for any home task, safely and easily.
         </p>
         <div class="service-preview-grid" id="servicePreviewGrid">
-            <!-- Services will load from API -->
+            
         </div>
     </section>
 
-    <!-- ===== STATS ===== -->
+    
     <div class="stats-row">
         <div class="stat-item"><div class="stat-number">15k+</div><div class="stat-label">Homes Served</div></div>
         <div class="stat-item"><div class="stat-number">500+</div><div class="stat-label">Certified Pros</div></div>
@@ -87,7 +87,7 @@
         <div class="stat-item"><div class="stat-number">4.9/5</div><div class="stat-label">Customer Rating</div></div>
     </div>
 
-    <!-- ===== TESTIMONIALS ===== -->
+    
     <section class="testimonial-section">
         <h2 class="section-title">What Our Customers Say</h2>
         <p class="section-sub">Thousands of homeowners trust FixMate for their home needs.</p>
@@ -113,7 +113,7 @@
         </div>
     </section>
 
-    <!-- ===== FOOTER ===== -->
+    
     <footer>
         <div>© 2026 FixMate · All rights reserved.</div>
         <div class="footer-links">
@@ -126,9 +126,7 @@
     </footer>
 </div>
 
-<!-- ============================================= -->
-<!-- ===== AUTH MODAL ===== -->
-<!-- ============================================= -->
+
 <div class="modal-overlay" id="authModal">
     <div class="modal">
         <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -174,9 +172,7 @@
     </div>
 </div>
 
-<!-- ============================================= -->
-<!-- ===== BOOKING MODAL ===== -->
-<!-- ============================================= -->
+
 <div class="modal-overlay" id="bookingModal">
     <div class="modal">
         <button class="modal-close" onclick="closeBookingModal()">&times;</button>
@@ -214,9 +210,7 @@
     </div>
 </div>
 
-<!-- ============================================= -->
-<!-- ===== JAVASCRIPT ===== -->
-<!-- ============================================= -->
+
 <script src="js/main.js"></script>
 <script>
     // ===== Load Services Preview =====
@@ -248,7 +242,7 @@
         }
     }
 
-    // ===== Search (FIXED) =====
+    
     function searchServices() {
         const query = document.getElementById('searchInput')?.value.trim() || '';
         if (query) {
@@ -258,7 +252,7 @@
         }
     }
 
-    // ===== Open Booking Modal =====
+    
     function bookService(id, name) {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -271,12 +265,12 @@
         document.getElementById('bookingModal').classList.add('active');
     }
 
-    // ===== Close Booking Modal =====
+    
     function closeBookingModal() {
         document.getElementById('bookingModal').classList.remove('active');
     }
 
-    // ===== Submit Booking =====
+    
     async function submitBooking(e) {
         e.preventDefault();
         const token = localStorage.getItem('token');
@@ -317,12 +311,12 @@
         }
     }
 
-    // Close Booking Modal on Outside Click
+    
     document.getElementById('bookingModal').addEventListener('click', function(e) {
         if (e.target === this) closeBookingModal();
     });
 
-    // Load on Page Start
+    
     window.addEventListener('DOMContentLoaded', loadServicesPreview);
 </script>
 </body>

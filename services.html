@@ -11,7 +11,7 @@
 <body>
 
 <div class="container">
-    <!-- ===== NAVBAR ===== -->
+    
     <nav class="navbar">
         <div class="logo">Fix<span>Mate</span></div>
         <div class="nav-links">
@@ -27,7 +27,7 @@
         </div>
     </nav>
 
-    <!-- ===== SERVICES HEADER ===== -->
+    
     <div class="services-header">
         <h1 class="section-title">All Services</h1>
         <p class="section-sub">Browse and book from our complete list of professional home services</p>
@@ -43,19 +43,19 @@
         </div>
     </div>
 
-    <!-- ===== ALL SERVICES GRID ===== -->
+    
     <div class="service-grid" id="allServicesGrid">
         <p style="text-align:center;grid-column:1/-1;color:#98a2b3;padding:40px;">Loading services...</p>
     </div>
 
-    <!-- ===== REVIEWS SECTION ===== -->
+    
     <section class="reviews-section" id="reviewsSection" style="display:none;">
         <h2 class="section-title">Customer Reviews</h2>
         <p class="section-sub" id="reviewsSummary">Loading reviews...</p>
         <div id="reviewsList"></div>
     </section>
 
-    <!-- ===== FOOTER ===== -->
+    
     <footer>
         <div>© 2026 FixMate · All rights reserved.</div>
         <div class="footer-links">
@@ -65,9 +65,7 @@
     </footer>
 </div>
 
-<!-- ============================================= -->
-<!-- ===== AUTH MODAL ===== -->
-<!-- ============================================= -->
+
 <div class="modal-overlay" id="authModal">
     <div class="modal">
         <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -113,9 +111,7 @@
     </div>
 </div>
 
-<!-- ============================================= -->
-<!-- ===== BOOKING MODAL ===== -->
-<!-- ============================================= -->
+
 <div class="modal-overlay" id="bookingModal">
     <div class="modal">
         <button class="modal-close" onclick="closeBookingModal()">&times;</button>
@@ -153,15 +149,13 @@
     </div>
 </div>
 
-<!-- ============================================= -->
-<!-- ===== JAVASCRIPT ===== -->
-<!-- ============================================= -->
+
 <script src="js/main.js"></script>
 <script>
     let allServices = [];
     let allCategories = [];
 
-    // ===== Service Images Map =====
+    
     const serviceImages = {
         "Home Cleaning": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop",
         "Electrician Service": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop",
