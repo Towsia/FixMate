@@ -60,7 +60,7 @@
 </div>
 
 <!-- ============================================= -->
-<!-- ===== AUTH MODAL (Login / Signup) ===== -->
+<!-- ===== AUTH MODAL ===== -->
 <!-- ============================================= -->
 <div class="modal-overlay" id="authModal">
     <div class="modal">
@@ -68,12 +68,10 @@
         <div class="logo-sm">Fix<span>Mate</span></div>
         <div class="subtitle" id="modalSubtitle">Sign in to your account</div>
         <div id="modalMessage" class="message-box"></div>
-
         <div class="tabs">
             <button class="tab active" id="tabSignIn" onclick="switchTab('signin')">Sign In</button>
             <button class="tab" id="tabSignUp" onclick="switchTab('signup')">Sign Up</button>
         </div>
-
         <form id="signinForm" class="form" onsubmit="handleSignIn(event)">
             <div class="form-group">
                 <label>Email</label>
@@ -88,7 +86,6 @@
                 Don't have an account? <a onclick="switchTab('signup')">Sign Up</a>
             </div>
         </form>
-
         <form id="signupForm" class="form hidden" onsubmit="handleSignUp(event)">
             <div class="form-group">
                 <label>Full Name</label>
@@ -119,10 +116,8 @@
         <div class="logo-sm">Book <span>Service</span></div>
         <div class="subtitle">Fill in your booking details</div>
         <div id="bookingMessage" class="message-box"></div>
-
         <form onsubmit="submitBooking(event)">
             <input type="hidden" id="bookingServiceId" />
-
             <div class="form-group">
                 <label>Service</label>
                 <input type="text" id="bookingServiceName" readonly style="background:#f1f4f9;" />
@@ -155,26 +150,26 @@
 <!-- ============================================= -->
 <!-- ===== JAVASCRIPT ===== -->
 <!-- ============================================= -->
+<!-- শুধু main.js Load করো, API সেখানে আছে -->
 <script src="js/main.js"></script>
 <script>
-    const API = 'https://fixmate-backend-jhlp.onrender.com/api';
+    // ⚠️ API এখানে Declare করো না, main.js এ আছে
+    // var API = ... ← এটা লিখবে না
+
     let allServices = [];
     let allCategories = [];
 
     // ===== Load Services + Categories =====
     async function loadAllServices() {
         try {
-            // limit=100 দিয়ে সব Service আনো
             const res = await fetch(`${API}/services?limit=100`);
             const data = await res.json();
             allServices = data.services || [];
 
-            // Categories Load
             const catRes = await fetch(`${API}/categories`);
             const catData = await catRes.json();
             allCategories = catData.categories || [];
 
-            // Category Filter Populate
             const catFilter = document.getElementById('categoryFilter');
             if (catFilter) {
                 catFilter.innerHTML = '<option value="">All Categories</option>';

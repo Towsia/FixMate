@@ -1,4 +1,4 @@
-const API = 'http://localhost:5000/api';
+const API = 'https://fixmate-backend-jhlp.onrender.com/api';
 
 // ===== Open/Close Modal =====
 function openModal(tab) {
