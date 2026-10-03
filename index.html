@@ -219,9 +219,6 @@
 <!-- ============================================= -->
 <script src="js/main.js"></script>
 <script>
-    // ⚠️ তোমার Render URL
-    const API = 'https://fixmate-backend-jhlp.onrender.com/api';
-
     // ===== Load Services Preview =====
     async function loadServicesPreview() {
         try {
@@ -251,11 +248,11 @@
         }
     }
 
-    // ===== Search =====
+    // ===== Search (FIXED) =====
     function searchServices() {
-        const query = document.getElementById('searchInput')?.value || '';
+        const query = document.getElementById('searchInput')?.value.trim() || '';
         if (query) {
-            window.location.href = `services.html?search=${query}`;
+            window.location.href = `services.html?search=${encodeURIComponent(query)}`;
         } else {
             window.location.href = 'services.html';
         }

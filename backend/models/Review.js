@@ -16,8 +16,25 @@ const ReviewSchema = new mongoose.Schema({
     ref: 'Service', 
     required: true 
   },
-  rating: { type: Number, min: 1, max: 5, required: true },
-  comment: { type: String }
+  providerId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
+  },
+  rating: { 
+    type: Number, 
+    min: 1, 
+    max: 5, 
+    required: true 
+  },
+  comment: { 
+    type: String, 
+    required: true,
+    maxlength: 500
+  }
 }, { timestamps: true });
+
+
+ReviewSchema.index({ bookingId: 1, userId: 1 }, { unique: true });
 
 module.exports = mongoose.model('Review', ReviewSchema);

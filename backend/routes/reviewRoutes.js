@@ -9,10 +9,10 @@ const {
 } = require('../controllers/reviewController');
 const authMiddleware = require('../middleware/auth');
 
-// Public Routes
+// ===== Public Routes =====
 router.get('/service/:serviceId', getServiceReviews);
 
-// Protected Routes
+// ===== Protected Routes =====
 router.post('/', authMiddleware, createReview);
 router.get('/my-reviews', authMiddleware, getMyReviews);
 router.put('/:id', authMiddleware, updateReview);
