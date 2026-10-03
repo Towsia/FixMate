@@ -152,11 +152,12 @@
 <!-- ============================================= -->
 <script src="js/main.js"></script>
 <script>
-    
+    // ⚠️ API এখানে Declare করো না (main.js এ আছে)
+
     let allServices = [];
     let allCategories = [];
 
-    // ===== Service Images Map (Service Title → Image URL) =====
+    // ===== Service Images Map =====
     const serviceImages = {
         "Home Cleaning": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop",
         "Electrician Service": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop",
@@ -208,7 +209,6 @@
             const catData = await catRes.json();
             allCategories = catData.categories || [];
 
-            // Populate Category Filter
             const catFilter = document.getElementById('categoryFilter');
             if (catFilter) {
                 catFilter.innerHTML = '<option value="">All Categories</option>';
