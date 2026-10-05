@@ -19,29 +19,31 @@ exports.register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Verification Token
     const verificationToken = jwt.sign(
       { email }, 
       process.env.JWT_SECRET, 
       { expiresIn: '1d' }
     );
 
+    // User Create (Email Verify হবে)
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
       role: role || 'user',
-      isVerified: true,  // ← Auto Verified
+      isVerified: false,
       verificationToken
     });
 
-    // Email পাঠানোর চেষ্টা (Optional)
+    // Verification Email পাঠাও
     try {
       const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
       await sendEmail({
         email: user.email,
         subject: 'Verify your email - FixMate',
         html: `
-          <h1>Welcome to FixMate!</h1>
+          <h1>Welcome to FixMate, ${user.name}!</h1>
           <p>Please click the link below to verify your email:</p>
           <a href="${verificationUrl}">${verificationUrl}</a>
           <p>This link will expire in 24 hours.</p>
@@ -53,7 +55,7 @@ exports.register = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully! You can now login.',
+      message: 'Registration successful! Please check your email to verify.',
       user: {
         id: user._id,
         name: user.name,
@@ -124,6 +126,14 @@ exports.login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password'
+      });
+    }
+
+    // Email Verified?
+    if (!user.isVerified) {
+      return res.status(401).json({
+        success: false,
+        message: 'Please verify your email first. Check your inbox.'
       });
     }
 

@@ -1108,3 +1108,54 @@ footer a:hover {
     color: #475467;
     line-height: 1.6;
 }
+/* ===== PROFILE PAGE ===== */
+.profile-picture-section {
+    display: flex;
+    justify-content: center;
+    margin: 32px 0;
+}
+
+.profile-pic-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+
+.profile-pic-container img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #2a7de1;
+}
+
+.upload-btn {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: #0b1a33;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 3px solid white;
+}
+
+.profile-card {
+    background: white;
+    padding: 32px;
+    border-radius: 28px;
+    border: 1px solid #eaecf0;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.profile-card h2 {
+    font-size: 1.3rem;
+    color: #0b1a33;
+    margin-bottom: 24px;
+}

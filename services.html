@@ -11,21 +11,21 @@
 <body>
 
 <div class="container">
-    <!-- ===== NAVBAR ===== -->
     <nav class="navbar">
-        <div class="logo">Fix<span>Mate</span></div>
-        <div class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="services.html">Services</a>
-            <a href="my-bookings.html">My Bookings</a>
-            <a href="about.html">About</a>
-            <a href="contact.html">Contact</a>
-        </div>
-        <div class="nav-actions">
-            <button class="btn-outline" onclick="openModal('signin')">Log In</button>
-            <button class="btn-primary" onclick="openModal('signup')">Sign Up</button>
-        </div>
-    </nav>
+    <div class="logo">Fix<span>Mate</span></div>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="services.html">Services</a>
+        <a href="my-bookings.html">My Bookings</a>
+        <a href="profile.html">Profile</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+    </div>
+    <div class="nav-actions">
+        <button class="btn-outline" onclick="openModal('signin')">Log In</button>
+        <button class="btn-primary" onclick="openModal('signup')">Sign Up</button>
+    </div>
+</nav>
 
     <!-- ===== SERVICES HEADER ===== -->
     <div class="services-header">
@@ -163,35 +163,32 @@
     let allServices = [];
     let allCategories = [];
 
-    // ===== Service Images Map (Fixed 404) =====
     const serviceImages = {
-        "Home Cleaning": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop",
-        "Electrician Service": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop",
-        "Plumber Service": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
-        "Painting Service": "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=400&h=300&fit=crop",
-        "Gardening Service": "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop",
-        "Handyman Service": "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop",
-        "AC Repair Service": "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=300&fit=crop",
-        "Refrigerator Repair": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop",
-        "Washing Machine Repair": "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=400&h=300&fit=crop",
-        "TV Repair Service": "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&h=300&fit=crop",
-        "Computer Repair": "https://images.unsplash.com/photo-1588702547919-26089e690ecc?w=400&h=300&fit=crop",
-        "Mobile Repair": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=300&fit=crop",
-        "Sofa Cleaning": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop",
-        "Carpet Cleaning": "https://images.unsplash.com/photo-1600585152220-90363fe7e115?w=400&h=300&fit=crop",
-        "Pest Control": "https://images.unsplash.com/photo-1585687341511-ec5f6d5b3e3d?w=400&h=300&fit=crop",
-        "Water Tank Cleaning": "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop",
-        "CCTV Installation": "https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=400&h=300&fit=crop",
-        "Interior Design": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=400&h=300&fit=crop",
-        "Furniture Assembly": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop",
-        "Moving Service": "https://images.unsplash.com/photo-1600518464441-9154a4dea21b?w=400&h=300&fit=crop",
-        "Roof Repair": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop",
-        "Window Cleaning": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop",
-        "Solar Panel Installation": "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&h=300&fit=crop",
-        "Generator Repair": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop",
-        "Water Purifier Service": "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop"
-    };
-
+    "Home Cleaning": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop",
+    "Electrician Service": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop",
+    "Plumber Service": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+    "Painting Service": "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=400&h=300&fit=crop",
+    "Gardening Service": "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop",
+    "Handyman Service": "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop",
+    "AC Repair Service": "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=300&fit=crop",
+    "Refrigerator Repair": "https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=400&h=300&fit=crop",
+    "Washing Machine Repair": "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=400&h=300&fit=crop",
+    "TV Repair Service": "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&h=300&fit=crop",
+    "Computer Repair": "https://images.unsplash.com/photo-1588702547919-26089e690ecc?w=400&h=300&fit=crop",
+    "Sofa Cleaning": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop",
+    "Carpet Cleaning": "https://images.unsplash.com/photo-1600585152220-90363fe7e115?w=400&h=300&fit=crop",
+    "Pest Control": "https://images.unsplash.com/photo-1585687341511-ec5f6d5b3e3d?w=400&h=300&fit=crop",
+    "Water Tank Cleaning": "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop",
+    "CCTV Installation": "https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=400&h=300&fit=crop",
+    "Interior Design": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=400&h=300&fit=crop",
+    "Furniture Assembly": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop",
+    "Moving Service": "https://images.unsplash.com/photo-1600518464441-9154a4dea21b?w=400&h=300&fit=crop",
+    "Roof Repair": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop",
+    "Window Cleaning": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop",
+    "Solar Panel Installation": "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&h=300&fit=crop",
+    "Generator Repair": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop",
+    "Water Purifier Service": "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop"
+};
     // ===== Category Icons Map =====
     const categoryIcons = {
         "Cleaning": "fas fa-broom",
