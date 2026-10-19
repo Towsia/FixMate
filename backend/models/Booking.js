@@ -31,7 +31,13 @@ const BookingSchema = new mongoose.Schema({
     type: String,
     enum: ['unpaid', 'paid'],
     default: 'unpaid'
+  },
+  coordinates: {
+    type: { type: String, enum: ['Point'], default: 'Point' },
+    coordinates: { type: [Number], default: [0, 0] }
   }
 }, { timestamps: true });
+
+BookingSchema.index({ coordinates: '2dsphere' });
 
 module.exports = mongoose.model('Booking', BookingSchema);

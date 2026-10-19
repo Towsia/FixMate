@@ -21,7 +21,13 @@ const ServiceSchema = new mongoose.Schema({
     enum: ['active', 'inactive'], 
     default: 'active' 
   },
-  averageRating: { type: Number, default: 0 }
+  averageRating: { type: Number, default: 0 },
+  coordinates: {
+    type: { type: String, enum: ['Point'], default: 'Point' },
+    coordinates: { type: [Number], default: [0, 0] }
+  }
 }, { timestamps: true });
+
+ServiceSchema.index({ coordinates: '2dsphere' });
 
 module.exports = mongoose.model('Service', ServiceSchema);

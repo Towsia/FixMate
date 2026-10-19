@@ -4,7 +4,7 @@ const Service = require('../models/Service');
 // ==================== Create Booking ====================
 exports.createBooking = async (req, res) => {
   try {
-    const { serviceId, date, time, address, phone, notes } = req.body;
+    const { serviceId, date, time, address, phone, notes, coordinates } = req.body;
 
     
     const service = await Service.findById(serviceId);
@@ -33,7 +33,8 @@ exports.createBooking = async (req, res) => {
       phone,
       notes,
       totalPrice: service.price,
-      status: 'pending'
+      status: 'pending',
+      coordinates
     });
 
     res.status(201).json({
@@ -106,6 +107,13 @@ exports.getBooking = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: 'Booking not found'
+      });
+    }
+
+    if (booking.userId._id.toString() !== req.user.id && booking.providerId._id.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not authorized to view this booking'
       });
     }
 

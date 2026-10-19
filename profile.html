@@ -11,21 +11,21 @@
 <body>
 
 <div class="container">
+    <!-- NAVBAR -->
     <nav class="navbar">
-    <div class="logo">Fix<span>Mate</span></div>
-    <div class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="services.html">Services</a>
-        <a href="my-bookings.html">My Bookings</a>
-        <a href="profile.html">Profile</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-    </div>
-    <div class="nav-actions">
-        <button class="btn-outline" onclick="openModal('signin')">Log In</button>
-        <button class="btn-primary" onclick="openModal('signup')">Sign Up</button>
-    </div>
-</nav>
+        <div class="logo">Fix<span>Mate</span></div>
+        <div class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="services.html">Services</a>
+            <a href="profile.html">Profile</a>
+            <a href="provider-dashboard.html">Dashboard</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <div class="nav-actions" id="navAuth">
+            <button class="btn-outline" onclick="openModal('signin')">Log In</button>
+            <button class="btn-primary" onclick="openModal('signup')">Sign Up</button>
+        </div>
+    </nav>
 
     <h1 class="section-title" style="margin-top:40px;">My Profile</h1>
     <p class="section-sub">Manage your account information</p>
@@ -65,6 +65,30 @@
         </form>
     </div>
 
+    <!-- NID Verification (For Providers) - Removed -->
+    <div class="profile-card" id="nidSection" style="margin-top:24px; display:none;">
+        <h2>NID Verification</h2>   <!-- ← (For Providers) Removed -->
+        <p class="section-sub" style="font-size:0.95rem;">Submit your National ID to get verified</p>
+
+        <form id="nidForm" onsubmit="submitNid(event)">
+            <div class="form-group">
+                <label>NID Number</label>
+                <input type="text" id="nidNumber" placeholder="Enter your NID number" required />
+            </div>
+            <div class="form-group">
+                <label>NID Front Image</label>
+                <input type="file" id="nidFront" accept="image/*" required />
+            </div>
+            <div class="form-group">
+                <label>NID Back Image</label>
+                <input type="file" id="nidBack" accept="image/*" required />
+            </div>
+            <button type="submit" class="btn-full">Submit NID</button>
+        </form>
+
+        <div id="nidStatusBox" style="margin-top:16px;"></div>
+    </div>
+
     <!-- Change Password -->
     <div class="profile-card" style="margin-top:24px;">
         <h2>Change Password</h2>
@@ -80,8 +104,6 @@
             <button type="submit" class="btn-full">Change Password</button>
         </form>
     </div>
-
-    <div id="profileMessage" class="message-box" style="margin-top:16px;"></div>
 
     <footer>
         <div>© 2026 FixMate · All rights reserved.</div>
@@ -138,8 +160,11 @@
                 document.getElementById('profileEmail').value = data.user.email || '';
                 document.getElementById('profilePhone').value = data.user.phone || '';
                 document.getElementById('profileAddress').value = data.user.address || '';
-                if (data.user.profileImage) {
-                    document.getElementById('profilePic').src = `${API.replace('/api', '')}/${data.user.profileImage}`;
+
+                // Provider হলে NID Section দেখাও
+                if (data.user.role === 'provider') {
+                    document.getElementById('nidSection').style.display = 'block';
+                    loadNidStatus();
                 }
             }
         } catch (error) {
@@ -147,7 +172,63 @@
         }
     }
 
-    // Update Profile
+    // ===== Load NID Status =====
+    async function loadNidStatus() {
+        const token = localStorage.getItem('token');
+        try {
+            const res = await fetch(`${API}/nid/status`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+
+            const statusBox = document.getElementById('nidStatusBox');
+            if (data.success) {
+                const status = data.nidStatus || 'not_submitted';
+                const color = status === 'verified' ? '#067647' : status === 'pending' ? '#92400e' : '#b42318';
+                statusBox.innerHTML = `
+                    <p style="font-weight:600;color:${color};">
+                        NID Status: ${status.toUpperCase()}
+                    </p>
+                `;
+            }
+        } catch (error) {
+            console.log('Error loading NID status:', error.message);
+        }
+    }
+
+    // ===== Submit NID =====
+    async function submitNid(e) {
+        e.preventDefault();
+        const token = localStorage.getItem('token');
+        const nidNumber = document.getElementById('nidNumber').value;
+        const nidFront = document.getElementById('nidFront').files[0];
+        const nidBack = document.getElementById('nidBack').files[0];
+
+        const formData = new FormData();
+        formData.append('nidNumber', nidNumber);
+        formData.append('nidFront', nidFront);
+        formData.append('nidBack', nidBack);
+
+        try {
+            const res = await fetch(`${API}/nid/submit`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                showToast('✅ NID submitted! Waiting for admin verification.', 'success');
+                loadNidStatus();
+            } else {
+                showToast('❌ ' + data.message, 'error');
+            }
+        } catch (error) {
+            showToast('❌ Server error', 'error');
+        }
+    }
+
+    // ===== Update Profile =====
     async function updateProfile(e) {
         e.preventDefault();
         const token = localStorage.getItem('token');
@@ -162,13 +243,13 @@
                 body: JSON.stringify({ name, phone, address })
             });
             const data = await res.json();
-            showProfileMessage(data.message, data.success ? 'success' : 'error');
+            showToast(data.message, data.success ? 'success' : 'error');
         } catch (error) {
-            showProfileMessage('Server error', 'error');
+            showToast('Server error', 'error');
         }
     }
 
-    // Change Password
+    // ===== Change Password =====
     async function changePassword(e) {
         e.preventDefault();
         const token = localStorage.getItem('token');
@@ -182,16 +263,16 @@
                 body: JSON.stringify({ currentPassword, newPassword })
             });
             const data = await res.json();
-            showProfileMessage(data.message, data.success ? 'success' : 'error');
+            showToast(data.message, data.success ? 'success' : 'error');
             if (data.success) {
                 document.getElementById('passwordForm').reset();
             }
         } catch (error) {
-            showProfileMessage('Server error', 'error');
+            showToast('Server error', 'error');
         }
     }
 
-    // Upload Profile Picture
+    // ===== Upload Profile Picture =====
     async function uploadProfilePic() {
         const fileInput = document.getElementById('profilePicInput');
         const file = fileInput.files[0];
@@ -210,18 +291,11 @@
             const data = await res.json();
             if (data.success) {
                 document.getElementById('profilePic').src = `${API.replace('/api', '')}/${data.user.profileImage}`;
-                showProfileMessage('Profile picture updated!', 'success');
+                showToast('✅ Profile picture updated!', 'success');
             }
         } catch (error) {
-            showProfileMessage('Error uploading picture', 'error');
+            showToast('❌ Error uploading picture', 'error');
         }
-    }
-
-    function showProfileMessage(text, type) {
-        const box = document.getElementById('profileMessage');
-        box.textContent = text;
-        box.className = 'message-box ' + type;
-        setTimeout(() => { box.className = 'message-box'; }, 3000);
     }
 
     window.addEventListener('DOMContentLoaded', loadProfile);

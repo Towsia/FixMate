@@ -13,11 +13,12 @@
 <div class="container">
     <nav class="navbar">
     <div class="logo">Fix<span>Mate</span></div>
-    <div class="nav-links">
+    <div class="nav-links" id="navLinks">
         <a href="index.html">Home</a>
         <a href="services.html">Services</a>
         <a href="my-bookings.html">My Bookings</a>
         <a href="profile.html">Profile</a>
+         <a href="provider-dashboard.html">Dashboard</a>
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
     </div>
@@ -132,6 +133,7 @@
                         <div class="booking-status">
                             <span class="status-badge status-${b.status}">${b.status.toUpperCase()}</span>
                             ${b.status === 'pending' ? `<button class="btn-cancel" onclick="cancelBooking('${b._id}')">Cancel</button>` : ''}
+                            ${b.status === 'completed' ? `<button class="btn-primary" onclick="openReviewModal('${b._id}', '${b.serviceId?._id || ''}', '${b.serviceId?.providerId || b.providerId || ''}', '${b.serviceId?.title?.replace(/'/g, "\\'") || 'Service'}')" style="margin-top:8px;padding:6px 12px;font-size:0.85rem;" id="btn-review-${b._id}">Leave a Review</button>` : ''}
                         </div>
                     </div>
                 `).join('');
@@ -174,6 +176,125 @@
     }
 
     window.addEventListener('DOMContentLoaded', loadMyBookings);
+</script>
+
+<!-- ============================================= -->
+<!-- ===== REVIEW MODAL ===== -->
+<!-- ============================================= -->
+<div class="modal-overlay" id="reviewModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeReviewModal()">&times;</button>
+        <div class="logo-sm">Leave a <span>Review</span></div>
+        <div id="reviewMessage" class="message-box"></div>
+        <form onsubmit="submitReview(event)">
+            <input type="hidden" id="reviewBookingId" />
+            <input type="hidden" id="reviewServiceId" />
+            <input type="hidden" id="reviewProviderId" />
+            
+            <div class="form-group">
+                <label>Service</label>
+                <input type="text" id="reviewServiceName" readonly style="background:#f1f4f9;" />
+            </div>
+            <div class="form-group">
+                <label>Rating</label>
+                <div class="star-input" id="reviewStarInput" style="display:flex;gap:8px;font-size:1.5rem;color:#d0d5dd;cursor:pointer;">
+                    <i class="fas fa-star active" style="color:#f5b342;" data-val="1"></i>
+                    <i class="fas fa-star active" style="color:#f5b342;" data-val="2"></i>
+                    <i class="fas fa-star active" style="color:#f5b342;" data-val="3"></i>
+                    <i class="fas fa-star active" style="color:#f5b342;" data-val="4"></i>
+                    <i class="fas fa-star active" style="color:#f5b342;" data-val="5"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Comment</label>
+                <textarea id="reviewCommentText" rows="4" placeholder="Share your experience..."></textarea>
+            </div>
+            <button type="submit" class="btn-full">Submit Review</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    let reviewRating = 5;
+    
+    document.querySelectorAll('#reviewStarInput i').forEach(star => {
+        star.addEventListener('click', (e) => {
+            reviewRating = parseInt(e.target.getAttribute('data-val'));
+            document.querySelectorAll('#reviewStarInput i').forEach((s, idx) => {
+                if (idx < reviewRating) {
+                    s.style.color = '#f5b342';
+                    s.classList.replace('far', 'fas');
+                } else {
+                    s.style.color = '#d0d5dd';
+                    s.classList.replace('fas', 'far');
+                }
+            });
+        });
+    });
+
+    function openReviewModal(bookingId, serviceId, providerId, serviceName) {
+        document.getElementById('reviewBookingId').value = bookingId;
+        document.getElementById('reviewServiceId').value = serviceId;
+        document.getElementById('reviewProviderId').value = providerId;
+        document.getElementById('reviewServiceName').value = serviceName;
+        
+        document.getElementById('reviewMessage').className = 'message-box';
+        document.getElementById('reviewMessage').textContent = '';
+        document.getElementById('reviewCommentText').value = '';
+        
+        document.getElementById('reviewModal').classList.add('active');
+    }
+    
+    function closeReviewModal() {
+        document.getElementById('reviewModal').classList.remove('active');
+    }
+
+    document.getElementById('reviewModal').addEventListener('click', function(e) {
+        if (e.target === this) closeReviewModal();
+    });
+
+    async function submitReview(e) {
+        e.preventDefault();
+        const token = localStorage.getItem('token');
+        const bookingId = document.getElementById('reviewBookingId').value;
+        const serviceId = document.getElementById('reviewServiceId').value;
+        const providerId = document.getElementById('reviewProviderId').value;
+        const comment = document.getElementById('reviewCommentText').value;
+        const msgBox = document.getElementById('reviewMessage');
+
+        try {
+            const res = await fetch(`${API}/reviews`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ bookingId, serviceId, providerId, rating: reviewRating, comment })
+            });
+            const data = await res.json();
+
+            if (res.status === 201 || data.success) {
+                msgBox.textContent = '✅ Review submitted successfully!';
+                msgBox.className = 'message-box success';
+                
+                const btn = document.getElementById('btn-review-' + bookingId);
+                if (btn) btn.style.display = 'none';
+                
+                setTimeout(() => closeReviewModal(), 1500);
+            } else if (res.status === 409 || data.message?.toLowerCase().includes('already reviewed')) {
+                msgBox.textContent = 'You have already reviewed this booking.';
+                msgBox.className = 'message-box error';
+                const btn = document.getElementById('btn-review-' + bookingId);
+                if (btn) btn.style.display = 'none';
+            } else {
+                msgBox.textContent = '❌ ' + (data.message || 'Error submitting review');
+                msgBox.className = 'message-box error';
+            }
+        } catch (error) {
+            msgBox.textContent = '❌ Server error.';
+            msgBox.className = 'message-box error';
+        }
+    }
 </script>
 </body>
 </html>

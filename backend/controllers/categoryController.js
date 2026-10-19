@@ -38,10 +38,18 @@ exports.getAllCategories = async (req, res) => {
   try {
     const categories = await Category.find().sort({ name: 1 });
 
+    const sorted = categories.sort((a, b) => {
+      const aIsOther = a.name.toLowerCase() === 'others' || a.name.toLowerCase() === 'other';
+      const bIsOther = b.name.toLowerCase() === 'others' || b.name.toLowerCase() === 'other';
+      if (aIsOther && !bIsOther) return 1;
+      if (!aIsOther && bIsOther) return -1;
+      return a.name.localeCompare(b.name);
+    });
+
     res.status(200).json({
       success: true,
-      count: categories.length,
-      categories
+      count: sorted.length,
+      categories: sorted
     });
 
   } catch (error) {

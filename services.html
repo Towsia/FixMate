@@ -11,23 +11,24 @@
 <body>
 
 <div class="container">
+    <!-- NAVBAR -->
     <nav class="navbar">
-    <div class="logo">Fix<span>Mate</span></div>
-    <div class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="services.html">Services</a>
-        <a href="my-bookings.html">My Bookings</a>
-        <a href="profile.html">Profile</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-    </div>
-    <div class="nav-actions">
-        <button class="btn-outline" onclick="openModal('signin')">Log In</button>
-        <button class="btn-primary" onclick="openModal('signup')">Sign Up</button>
-    </div>
-</nav>
+        <div class="logo">Fix<span>Mate</span></div>
+        <div class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="services.html">Services</a>
+            <a href="my-bookings.html">My Bookings</a>
+            <a href="profile.html">Profile</a>
+            <a href="provider-dashboard.html">Dashboard</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <div class="nav-actions" id="navAuth">
+            <button class="btn-outline" onclick="openModal('signin')">Log In</button>
+            <button class="btn-primary" onclick="openModal('signup')">Sign Up</button>
+        </div>
+    </nav>
 
-    <!-- ===== SERVICES HEADER ===== -->
+    <!-- SERVICES HEADER -->
     <div class="services-header">
         <h1 class="section-title">All Services</h1>
         <p class="section-sub">Browse and book from our complete list of professional home services</p>
@@ -43,19 +44,12 @@
         </div>
     </div>
 
-    <!-- ===== ALL SERVICES GRID ===== -->
+    <!-- ALL SERVICES GRID -->
     <div class="service-grid" id="allServicesGrid">
         <p style="text-align:center;grid-column:1/-1;color:#98a2b3;padding:40px;">Loading services...</p>
     </div>
 
-    <!-- ===== REVIEWS SECTION ===== -->
-    <section class="reviews-section" id="reviewsSection" style="display:none;">
-        <h2 class="section-title">Customer Reviews</h2>
-        <p class="section-sub" id="reviewsSummary">Loading reviews...</p>
-        <div id="reviewsList"></div>
-    </section>
-
-    <!-- ===== FOOTER ===== -->
+    <!-- FOOTER -->
     <footer>
         <div>© 2026 FixMate · All rights reserved.</div>
         <div class="footer-links">
@@ -65,9 +59,7 @@
     </footer>
 </div>
 
-<!-- ============================================= -->
-<!-- ===== AUTH MODAL ===== -->
-<!-- ============================================= -->
+<!-- AUTH MODAL -->
 <div class="modal-overlay" id="authModal">
     <div class="modal">
         <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -105,6 +97,13 @@
                 <label>Password</label>
                 <input type="password" id="signupPassword" placeholder="••••••••" required />
             </div>
+            <div class="form-group">
+                <label>Register As</label>
+                <select id="signupRole">
+                    <option value="user">User (Book Services)</option>
+                    <option value="provider">Provider (Offer Services)</option>
+                </select>
+            </div>
             <button type="submit" class="btn-full">Create Account</button>
             <div class="switch-text">
                 Already have an account? <a onclick="switchTab('signin')">Sign In</a>
@@ -113,15 +112,20 @@
     </div>
 </div>
 
-<!-- ============================================= -->
-<!-- ===== BOOKING MODAL ===== -->
-<!-- ============================================= -->
+<!-- BOOKING MODAL -->
 <div class="modal-overlay" id="bookingModal">
     <div class="modal">
         <button class="modal-close" onclick="closeBookingModal()">&times;</button>
         <div class="logo-sm">Book <span>Service</span></div>
         <div class="subtitle">Fill in your booking details</div>
         <div id="bookingMessage" class="message-box"></div>
+
+        <!-- Provider Info Section -->
+        <div id="providerInfoBox" style="display:none; padding:16px; background:#f7f9fd; border-radius:12px; margin-bottom:16px; border:1px solid #eaecf0;">
+            <h4 style="margin-bottom:12px; color:#0b1a33;">Provider Information</h4>
+            <div id="providerDetails"></div>
+        </div>
+
         <form onsubmit="submitBooking(event)">
             <input type="hidden" id="bookingServiceId" />
             <div class="form-group">
@@ -153,42 +157,39 @@
     </div>
 </div>
 
-<!-- ============================================= -->
-<!-- ===== JAVASCRIPT ===== -->
-<!-- ============================================= -->
 <script src="js/main.js"></script>
 <script>
-    // ⚠️ API main.js এ আছে, এখানে Declare করো না
-
     let allServices = [];
     let allCategories = [];
 
+    // ===== Service Images Map =====
     const serviceImages = {
-    "Home Cleaning": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop",
-    "Electrician Service": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop",
-    "Plumber Service": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
-    "Painting Service": "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=400&h=300&fit=crop",
-    "Gardening Service": "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop",
-    "Handyman Service": "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop",
-    "AC Repair Service": "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=300&fit=crop",
-    "Refrigerator Repair": "https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=400&h=300&fit=crop",
-    "Washing Machine Repair": "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=400&h=300&fit=crop",
-    "TV Repair Service": "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&h=300&fit=crop",
-    "Computer Repair": "https://images.unsplash.com/photo-1588702547919-26089e690ecc?w=400&h=300&fit=crop",
-    "Sofa Cleaning": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop",
-    "Carpet Cleaning": "https://images.unsplash.com/photo-1600585152220-90363fe7e115?w=400&h=300&fit=crop",
-    "Pest Control": "https://images.unsplash.com/photo-1585687341511-ec5f6d5b3e3d?w=400&h=300&fit=crop",
-    "Water Tank Cleaning": "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop",
-    "CCTV Installation": "https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=400&h=300&fit=crop",
-    "Interior Design": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=400&h=300&fit=crop",
-    "Furniture Assembly": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop",
-    "Moving Service": "https://images.unsplash.com/photo-1600518464441-9154a4dea21b?w=400&h=300&fit=crop",
-    "Roof Repair": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop",
-    "Window Cleaning": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop",
-    "Solar Panel Installation": "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&h=300&fit=crop",
-    "Generator Repair": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop",
-    "Water Purifier Service": "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop"
-};
+        "Home Cleaning": "https://plus.unsplash.com/premium_photo-1679920025550-75324e59680f?q=80&w=869&auto=format&fit=crop",
+        "Window Cleaning": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1170&auto=format&fit=crop",
+        "Water Purifier Service": "https://images.unsplash.com/photo-1660053156709-8e8bd69b1c19?q=80&w=1992&auto=format&fit=crop",
+        "Pest Control": "https://plus.unsplash.com/premium_photo-1682126097276-57e5d1d3f812?q=80&w=2070&auto=format&fit=crop",
+        "Sofa Cleaning": "https://plus.unsplash.com/premium_photo-1733306538480-f0d59b6edadf?q=80&w=2070&auto=format&fit=crop",
+        "AC Repair Service": "https://plus.unsplash.com/premium_photo-1682126012378-859ca7a9f4cf?q=80&w=2070&auto=format&fit=crop",
+        "Electrician Service": "https://images.unsplash.com/photo-1615774925655-a0e97fc85c14?q=80&w=1935&auto=format&fit=crop",
+        "CCTV Installation": "https://images.unsplash.com/photo-1712095314547-31ab72fdc1b9?q=80&w=1974&auto=format&fit=crop",
+        "Water Tank Cleaning": "https://images.unsplash.com/photo-1659281608772-7e6df1a6fcba?q=80&w=687&auto=format&fit=crop",
+        "Carpet Cleaning": "https://plus.unsplash.com/premium_photo-1677234147986-1e9f099e4cb8?q=80&w=1170&auto=format&fit=crop",
+        "Furniture Assembly": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop",
+        "Plumber Service": "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=400&h=300&fit=crop",
+        "Roof Repair": "https://images.unsplash.com/photo-1632759145351-1d592919f522?w=400&h=300&fit=crop",
+        "Generator Repair": "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&h=300&fit=crop",
+        "Painting Service": "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=400&h=300&fit=crop",
+        "Gardening Service": "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop",
+        "Handyman Service": "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop",
+        "Refrigerator Repair": "https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=400&h=300&fit=crop",
+        "Washing Machine Repair": "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=400&h=300&fit=crop",
+        "TV Repair Service": "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&h=300&fit=crop",
+        "Computer Repair": "https://images.unsplash.com/photo-1588702547919-26089e690ecc?w=400&h=300&fit=crop",
+        "Interior Design": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=400&h=300&fit=crop",
+        "Moving Service": "https://images.unsplash.com/photo-1600518464441-9154a4dea21b?w=400&h=300&fit=crop",
+        "Solar Panel Installation": "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&h=300&fit=crop"
+    };
+
     // ===== Category Icons Map =====
     const categoryIcons = {
         "Cleaning": "fas fa-broom",
@@ -257,7 +258,7 @@
                 return `
                     <div class="service-card">
                         <div class="service-image">
-                            <img src="${imgUrl}" alt="${s.title}" onerror="this.src='https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop'" />
+                            <img src="${imgUrl}" alt="${s.title}" />
                             <span class="category-badge">
                                 <i class="${catIcon}"></i> ${catName}
                             </span>
@@ -301,22 +302,73 @@
         renderServices(filtered);
     }
 
-    // ===== Open Booking Modal =====
-    function bookService(id, name) {
+    // ===== Open Booking Modal (Provider Info Load) =====
+    async function bookService(id, name) {
         const token = localStorage.getItem('token');
         if (!token) {
             alert('Please login first to book this service.');
             openModal('signin');
             return;
         }
+
         document.getElementById('bookingServiceId').value = id;
         document.getElementById('bookingServiceName').value = name;
         document.getElementById('bookingModal').classList.add('active');
+
+        // ===== Provider Info Load =====
+        try {
+            const res = await fetch(`${API}/services/${id}`);
+            const data = await res.json();
+
+            if (data.success && data.service.providerId) {
+                const p = data.service.providerId;
+                const providerBox = document.getElementById('providerInfoBox');
+                const providerDetails = document.getElementById('providerDetails');
+
+                providerBox.style.display = 'block';
+                providerDetails.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                        <img src="${p.profileImage ? API.replace('/api', '') + p.profileImage : 'https://via.placeholder.com/50'}" 
+                             style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid #2a7de1;" />
+                        <div>
+                            <p style="font-weight:600; color:#0b1a33; margin:0;">${p.name}</p>
+                            <p style="font-size:0.85rem; color:#667185; margin:0;">${p.email}</p>
+                            ${p.isProviderVerified ? `
+                                <p style="font-size:0.8rem; color:#067647; font-weight:600; margin:4px 0 0;">
+                                    ✅ Verified Provider
+                                </p>
+                            ` : `
+                                <p style="font-size:0.8rem; color:#92400e; font-weight:600; margin:4px 0 0;">
+                                    ⏳ Not Verified
+                                </p>
+                            `}
+                        </div>
+                    </div>
+
+                    ${p.nidNumber ? `
+                        <p style="font-size:0.9rem; margin-bottom:8px;">
+                            <strong>NID:</strong> ${p.nidNumber}
+                        </p>
+                    ` : ''}
+
+                    ${p.nidFrontImage ? `
+                        <div style="margin-top:8px;">
+                            <p style="font-size:0.85rem; font-weight:600; margin-bottom:6px;">NID (Front):</p>
+                            <img src="${API.replace('/api', '')}${p.nidFrontImage}" 
+                                 style="width:100%; max-width:250px; border-radius:8px; border:2px solid #eaecf0;" />
+                        </div>
+                    ` : ''}
+                `;
+            }
+        } catch (error) {
+            console.log('Error loading provider info:', error.message);
+        }
     }
 
     // ===== Close Booking Modal =====
     function closeBookingModal() {
         document.getElementById('bookingModal').classList.remove('active');
+        document.getElementById('providerInfoBox').style.display = 'none';
     }
 
     // ===== Submit Booking =====
