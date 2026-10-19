@@ -65,9 +65,9 @@
         </form>
     </div>
 
-    <!-- NID Verification (For Providers) - Removed -->
+    <!-- NID Verification  -->
     <div class="profile-card" id="nidSection" style="margin-top:24px; display:none;">
-        <h2>NID Verification</h2>   <!-- ← (For Providers) Removed -->
+        <h2>NID Verification</h2>   
         <p class="section-sub" style="font-size:0.95rem;">Submit your National ID to get verified</p>
 
         <form id="nidForm" onsubmit="submitNid(event)">
@@ -161,7 +161,7 @@
                 document.getElementById('profilePhone').value = data.user.phone || '';
                 document.getElementById('profileAddress').value = data.user.address || '';
 
-                // Provider হলে NID Section দেখাও
+                // Provider NID Section show
                 if (data.user.role === 'provider') {
                     document.getElementById('nidSection').style.display = 'block';
                     loadNidStatus();

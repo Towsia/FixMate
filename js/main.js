@@ -1,4 +1,4 @@
-const API = 'http://localhost:5000/api';
+const API = 'https://fixmate-backend-jhlp.onrender.com/api';
 
 // ===== Force Clear Fields =====
 function forceClearFields() {
@@ -195,7 +195,7 @@ function updateNavbar() {
 
 // ===== Navbar Links (Role অনুযায়ী) =====
 function updateNavLinks() {
-    const navLinks = document.querySelector('.nav-links');
+    const navLinks = document.getElementById('navLinks');
     if (!navLinks) return;
 
     const userStr = localStorage.getItem('user');
