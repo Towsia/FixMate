@@ -1180,3 +1180,42 @@ footer a:hover {
         min-height: 300px;
     }
 }
+.about-content {
+    max-width: 800px;
+    margin: 40px auto;
+}
+
+.about-content h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0b1a33;
+    margin-bottom: 16px;
+}
+
+.about-content p {
+    font-size: 1.1rem;
+    color: #475467;
+    margin-bottom: 20px;
+    line-height: 1.8;
+}
+
+.about-content ul {
+    list-style: none;   /* ← Dot Remove */
+    padding: 0;
+}
+
+.about-content ul li {
+    padding: 12px 0;
+    font-size: 1.05rem;
+    color: #1e2a3d;
+    border-bottom: 1px solid #eaecf0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.about-content ul li i {
+    color: #2a7de1;
+    font-size: 1.2rem;
+    min-width: 24px;
+}
