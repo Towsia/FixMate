@@ -19,7 +19,6 @@ function openModal(tab) {
     forceClearFields();
     setTimeout(forceClearFields, 50);
     setTimeout(forceClearFields, 150);
-    setTimeout(forceClearFields, 300);
     const msg = document.getElementById('modalMessage');
     if (msg) { msg.className = 'message-box'; msg.textContent = ''; }
 }
@@ -58,7 +57,6 @@ function switchTab(tab) {
         tabSignIn.classList.remove('active');
         subtitle.textContent = 'Create your FixMate account';
     }
-
     forceClearFields();
     setTimeout(forceClearFields, 50);
     const msg = document.getElementById('modalMessage');
@@ -98,6 +96,7 @@ async function handleSignIn(e) {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
 
+    // Admin Auto Login
     if (email.toLowerCase() === 'admin@fixmate.com') {
         try {
             const res = await fetch(`${API}/auth/login`, {
@@ -110,7 +109,10 @@ async function handleSignIn(e) {
                 showToast('✅ Admin Login successful!', 'success');
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
-                setTimeout(() => { closeModal(); window.location.href = 'admin.html'; }, 1500);
+                setTimeout(() => { 
+                    closeModal(); 
+                    window.location.href = 'admin.html'; 
+                }, 1500);
             } else {
                 showToast('❌ Admin login failed', 'error');
             }
@@ -131,7 +133,11 @@ async function handleSignIn(e) {
             showToast('✅ Login successful! Welcome ' + data.user.name, 'success');
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
-            setTimeout(() => { closeModal(); updateNavbar(); updateNavLinks(); }, 1500);
+            setTimeout(() => { 
+                closeModal(); 
+                updateNavbar(); 
+                updateNavLinks(); 
+            }, 1500);
         } else {
             showToast('❌ ' + data.message, 'error');
         }
@@ -156,11 +162,7 @@ async function handleSignUp(e) {
         });
         const data = await res.json();
         if (data.success) {
-            if (role === 'provider') {
-                showToast('✅ Provider Registration successful! Please login and submit NID.', 'success');
-            } else {
-                showToast('✅ Registration successful! Please login.', 'success');
-            }
+            showToast(`✅ ${role === 'provider' ? 'Provider' : 'User'} Registration successful! Please login.`, 'success');
             setTimeout(() => {
                 switchTab('signin');
                 document.getElementById('loginEmail').value = email;
@@ -168,20 +170,26 @@ async function handleSignUp(e) {
         } else {
             showToast('❌ ' + data.message, 'error');
         }
-    } catch (error) { showToast('❌ Server error. Make sure backend is running.', 'error'); }
+    } catch (error) { showToast('❌ Server error.', 'error'); }
 }
 
-// ===== Navbar Auth =====
+// ===== Navbar Auth (Profile + Logout) =====
 function updateNavbar() {
     const navAuth = document.getElementById('navAuth');
     if (!navAuth) return;
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
+    
     if (token && userStr) {
         try {
             const user = JSON.parse(userStr);
+            let profileLink = 'profile.html';
+            if (user.role === 'admin') profileLink = 'admin-profile.html';
+            
             navAuth.innerHTML = `
-                <span class="user-name">Hi, ${user.name}</span>
+                <a href="${profileLink}" class="btn-outline" style="text-decoration:none; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-user-circle"></i> ${user.name.split(' ')[0]}'s Profile
+                </a>
                 <button class="btn-outline btn-logout" onclick="logout()">Log Out</button>
             `;
         } catch (e) {}
@@ -193,19 +201,51 @@ function updateNavbar() {
     }
 }
 
-// ===== Navbar Links (Role অনুযায়ী) =====
+// ===== Navbar Links (Role-based) =====
 function updateNavLinks() {
     const navLinks = document.getElementById('navLinks');
     if (!navLinks) return;
 
     const userStr = localStorage.getItem('user');
     let role = 'guest';
-
     if (userStr) {
         try { role = JSON.parse(userStr).role; } catch (e) {}
     }
 
-    if (role === 'provider') {
+    // Guest Navbar
+    if (role === 'guest') {
+        navLinks.innerHTML = `
+            <a href="index.html">Home</a>
+            <a href="services.html">Services</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        `;
+    } 
+    // Admin Navbar
+    else if (role === 'admin') {
+        navLinks.innerHTML = `
+            <a href="index.html">Home</a>
+            <a href="services.html">Services</a>
+            <a href="admin.html">Admin Panel</a>
+        `;
+        // Dropdown append
+        const navActions = document.getElementById('navAuth');
+        if (navActions) {
+            navActions.insertAdjacentHTML('afterbegin', `
+                <div class="dropdown" style="margin-right:12px;">
+                    <button class="btn-primary dropdown-btn" style="padding:8px 16px; font-size:0.9rem;">
+                        Details <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="#" onclick="openDropdownDetails('user-details')"><i class="fas fa-users"></i> User Details</a>
+                        <a href="#" onclick="openDropdownDetails('provider-details')"><i class="fas fa-user-tie"></i> Provider Details</a>
+                    </div>
+                </div>
+            `);
+        }
+    }
+    // Provider Navbar
+    else if (role === 'provider') {
         navLinks.innerHTML = `
             <a href="index.html">Home</a>
             <a href="services.html">Services</a>
@@ -213,7 +253,9 @@ function updateNavLinks() {
             <a href="provider-dashboard.html">Dashboard</a>
             <a href="contact.html">Contact</a>
         `;
-    } else if (role === 'user') {
+    } 
+    // User Navbar
+    else {
         navLinks.innerHTML = `
             <a href="index.html">Home</a>
             <a href="services.html">Services</a>
@@ -221,14 +263,12 @@ function updateNavLinks() {
             <a href="profile.html">Profile</a>
             <a href="contact.html">Contact</a>
         `;
-    } else {
-        navLinks.innerHTML = `
-            <a href="index.html">Home</a>
-            <a href="services.html">Services</a>
-            <a href="about.html">About</a>
-            <a href="contact.html">Contact</a>
-        `;
     }
+}
+
+function openDropdownDetails(type) {
+    localStorage.setItem('dropdownTarget', type);
+    window.location.href = 'admin.html';
 }
 
 // ===== Logout =====

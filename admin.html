@@ -14,29 +14,11 @@
     <!-- NAVBAR -->
     <nav class="navbar">
         <div class="logo">Fix<span>Mate</span></div>
-        <div class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="services.html">Services</a>
-            <a href="admin.html">Admin Panel</a>
+        <div class="nav-links" id="navLinks">
+            <!-- Admin Navbar links -->
         </div>
-        
-        <div class="nav-actions">
-            <!-- Admin Profile -->
-            <a href="admin-profile.html" class="btn-outline" style="text-decoration:none; display:flex; align-items:center; gap:8px;">
-                <i class="fas fa-user-shield"></i> Admin Profile
-            </a>
-            <button class="btn-outline btn-logout" onclick="logout()">Log Out</button>
-            
-            <!-- Details Dropdown -->
-            <div class="dropdown">
-                <button class="btn-primary dropdown-btn">
-                    Details <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="dropdown-content">
-                    <a href="#" onclick="showAdminSection('user-details')"><i class="fas fa-users"></i> User Details</a>
-                    <a href="#" onclick="showAdminSection('provider-details')"><i class="fas fa-user-tie"></i> Provider Details</a>
-                </div>
-            </div>
+        <div class="nav-actions" id="navAuth">
+            <!-- Admin Auth Actions & Dropdown -->
         </div>
     </nav>
 
@@ -44,10 +26,10 @@
     <p class="section-sub">Manage Users, Services, and NID Verification</p>
 
     <!-- Tabs -->
-    <div class="admin-tabs">
-        <button class="admin-tab active" onclick="showTab('users', this)">All Users</button>
-        <button class="admin-tab" onclick="showTab('services', this)">All Services</button>
-        <button class="admin-tab" onclick="showTab('nid', this)">NID Verify</button>
+    <div class="admin-tabs" id="adminTabs">
+        <button class="admin-tab active" id="tabUsersBtn" onclick="showTab('users', this)">All Users</button>
+        <button class="admin-tab" id="tabServicesBtn" onclick="showTab('services', this)">All Services</button>
+        <button class="admin-tab" id="tabNidBtn" onclick="showTab('nid', this)">NID Verify</button>
     </div>
 
     <!-- Users Tab -->
@@ -65,13 +47,14 @@
         <div id="nidList"></div>
     </div>
 
-    <!-- Detail Sections (Dropdown theke ashbe) -->
-    <div id="user-details-section" class="admin-content hidden" style="margin-top:40px;">
+    <!-- User Details Section (Dropdown theke ashbe) -->
+    <div id="detailedUserSection" class="admin-content hidden">
         <h2 class="section-title">Detailed User Information</h2>
         <div id="detailedUserList"></div>
     </div>
 
-    <div id="provider-details-section" class="admin-content hidden" style="margin-top:40px;">
+    <!-- Provider Details Section (Dropdown theke ashbe) -->
+    <div id="detailedProviderSection" class="admin-content hidden">
         <h2 class="section-title">Detailed Provider Information</h2>
         <div id="detailedProviderList"></div>
     </div>
@@ -80,7 +63,7 @@
 
 <script src="js/main.js"></script>
 <script>
-    // ===== Load Admin Dashboard =====
+    // Load Admin Dashboard Data
     async function loadAdminDashboard() {
         const token = localStorage.getItem('token');
         if (!token) { window.location.href = 'index.html'; return; }
@@ -144,15 +127,26 @@
         } catch (error) { console.error(error); }
     }
 
-    // ===== Dropdown Section Load =====
-    async function showAdminSection(section) {
-        const token = localStorage.getItem('token');
-        
-        // Hide all tabs first
-        document.querySelectorAll('.admin-content').forEach(c => c.classList.add('hidden'));
+    // Check if Redirect from Dropdown
+    window.addEventListener('DOMContentLoaded', () => {
+        loadAdminDashboard();
+        const dropdownTarget = localStorage.getItem('dropdownTarget');
+        if (dropdownTarget) {
+            localStorage.removeItem('dropdownTarget');
+            showDetailSection(dropdownTarget);
+        }
+    });
 
-        if (section === 'user-details') {
-            document.getElementById('user-details-section').classList.remove('hidden');
+    // Show Detail Section from Dropdown
+    async function showDetailSection(type) {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        // Hide all tabs
+        document.querySelectorAll('.admin-tabs, .admin-content').forEach(c => c.classList.add('hidden'));
+
+        if (type === 'user-details') {
+            document.getElementById('detailedUserSection').classList.remove('hidden');
             const res = await fetch(`${API}/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } });
             const data = await res.json();
             const list = document.getElementById('detailedUserList');
@@ -168,8 +162,8 @@
                     </div>
                 `).join('');
             }
-        } else if (section === 'provider-details') {
-            document.getElementById('provider-details-section').classList.remove('hidden');
+        } else if (type === 'provider-details') {
+            document.getElementById('detailedProviderSection').classList.remove('hidden');
             const res = await fetch(`${API}/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } });
             const data = await res.json();
             const list = document.getElementById('detailedProviderList');
@@ -189,31 +183,37 @@
         }
     }
 
+    // Tab Switching (Restore visibility)
+    function showTab(tab, btn) {
+        document.querySelectorAll('.admin-tabs, .admin-content').forEach(c => c.classList.remove('hidden'));
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.admin-content').forEach(c => c.classList.add('hidden'));
+        
+        document.getElementById(`${tab}Tab`).classList.remove('hidden');
+        btn.classList.add('active');
+        document.getElementById('detailedUserSection').classList.add('hidden');
+        document.getElementById('detailedProviderSection').classList.add('hidden');
+    }
+
+    // Delete User & Verify NID functions
+    async function deleteUser(id) {
+        if (!confirm('Delete this user?')) return;
+        const token = localStorage.getItem('token');
+        await fetch(`${API}/admin/users/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+        alert('User Deleted!');
+        location.reload();
+    }
+
     async function verifyNid(userId, status) {
         const token = localStorage.getItem('token');
-        const res = await fetch(`${API}/nid/verify/${userId}`, {
+        await fetch(`${API}/nid/verify/${userId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ status })
         });
-        if (res.ok) { alert('NID Status Updated!'); location.reload(); }
+        alert('NID Status Updated!');
+        location.reload();
     }
-
-    async function deleteUser(id) {
-        if (!confirm('Delete this user?')) return;
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${API}/admin/users/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-        if (res.ok) { alert('User Deleted!'); location.reload(); }
-    }
-
-    function showTab(tab, btn) {
-        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.admin-content').forEach(c => c.classList.add('hidden'));
-        document.getElementById(`${tab}Tab`).classList.remove('hidden');
-        btn.classList.add('active');
-    }
-
-    window.addEventListener('DOMContentLoaded', loadAdminDashboard);
 </script>
 </body>
 </html>
