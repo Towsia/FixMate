@@ -9,29 +9,30 @@
     <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+
 <div class="container">
     <nav class="navbar">
         <div class="logo">Fix<span>Mate</span></div>
-        <div class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="services.html">Services</a>
-            <a href="admin.html">Admin Panel</a>
-        </div>
-        <div class="nav-actions">
-            <button class="btn-outline btn-logout" onclick="logout()">Log Out</button>
-        </div>
+        <div class="nav-links" id="navLinks"></div>
+        <div class="nav-actions" id="navAuth"></div>
     </nav>
 
     <h1 class="section-title" style="margin-top:40px;">Admin Profile</h1>
-    <p class="section-sub">Your account information</p>
+    <p class="section-sub">Your account details</p>
 
-    <div class="profile-card" style="max-width:500px;">
-        <div style="text-align:center; margin-bottom:20px;">
+    <div class="profile-card" style="max-width:500px; margin: 0 auto; text-align: center;">
+        <div style="margin-bottom:20px;">
             <i class="fas fa-user-shield" style="font-size:4rem; color:#2a7de1;"></i>
         </div>
-        <h2 id="adminName" style="text-align:center;">Loading...</h2>
-        <p style="text-align:center; color:#667185;" id="adminEmail"></p>
-        <p style="text-align:center; color:#667185;" id="adminRole"></p>
+        
+        <h2 id="adminName" style="color:#0b1a33; margin-bottom:5px;">Loading...</h2>
+        <p style="color:#667185; margin-bottom:20px;" id="adminRole">Role: Admin</p>
+        
+        <div style="text-align:left; background:#f9fafb; padding:20px; border-radius:12px;">
+            <p style="margin-bottom:10px;"><strong><i class="fas fa-envelope"></i> Email:</strong> <span id="adminEmail"></span></p>
+            <p style="margin-bottom:10px;"><strong><i class="fas fa-phone"></i> Phone:</strong> <span id="adminPhone">Not provided</span></p>
+            <p><strong><i class="fas fa-map-marker-alt"></i> Address:</strong> <span id="adminAddress">Not provided</span></p>
+        </div>
     </div>
 </div>
 
@@ -43,7 +44,9 @@
             const user = JSON.parse(userStr);
             document.getElementById('adminName').textContent = user.name;
             document.getElementById('adminEmail').textContent = user.email;
-            document.getElementById('adminRole').textContent = 'Role: Admin';
+            document.getElementById('adminPhone').textContent = user.phone || 'Not provided';
+            document.getElementById('adminAddress').textContent = user.address || 'Not provided';
+            document.getElementById('adminRole').textContent = 'Role: ' + user.role.toUpperCase();
         } else {
             window.location.href = 'index.html';
         }

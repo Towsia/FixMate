@@ -18,7 +18,6 @@ function openModal(tab) {
     switchTab(tab);
     forceClearFields();
     setTimeout(forceClearFields, 50);
-    setTimeout(forceClearFields, 150);
     const msg = document.getElementById('modalMessage');
     if (msg) { msg.className = 'message-box'; msg.textContent = ''; }
 }
@@ -63,7 +62,7 @@ function switchTab(tab) {
     if (msg) { msg.className = 'message-box'; msg.textContent = ''; }
 }
 
-// ===== Toast =====
+// ===== Toast Notification =====
 function showToast(message, type = 'success') {
     const existingToast = document.querySelector('.toast');
     if (existingToast) existingToast.remove();
@@ -77,7 +76,7 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-// ===== Password Toggle =====
+// ===== Password Show/Hide =====
 function togglePassword(inputId, button) {
     const input = document.getElementById(inputId);
     if (!input) return;
@@ -96,7 +95,6 @@ async function handleSignIn(e) {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
 
-    // Admin Auto Login
     if (email.toLowerCase() === 'admin@fixmate.com') {
         try {
             const res = await fetch(`${API}/auth/login`, {
@@ -212,7 +210,6 @@ function updateNavLinks() {
         try { role = JSON.parse(userStr).role; } catch (e) {}
     }
 
-    // Guest Navbar
     if (role === 'guest') {
         navLinks.innerHTML = `
             <a href="index.html">Home</a>
@@ -221,19 +218,17 @@ function updateNavLinks() {
             <a href="contact.html">Contact</a>
         `;
     } 
-    // Admin Navbar
     else if (role === 'admin') {
         navLinks.innerHTML = `
             <a href="index.html">Home</a>
             <a href="services.html">Services</a>
             <a href="admin.html">Admin Panel</a>
         `;
-        // Dropdown append
         const navActions = document.getElementById('navAuth');
         if (navActions && !navActions.querySelector('.dropdown')) {
             navActions.insertAdjacentHTML('afterbegin', `
                 <div class="dropdown" style="margin-right:12px;">
-                    <button class="btn-primary dropdown-btn" style="padding:8px 16px; font-size:0.9rem;">
+                    <button class="dropdown-btn">
                         Details <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="dropdown-content">
@@ -244,7 +239,6 @@ function updateNavLinks() {
             `);
         }
     }
-    // Provider Navbar
     else if (role === 'provider') {
         navLinks.innerHTML = `
             <a href="index.html">Home</a>
@@ -254,7 +248,6 @@ function updateNavLinks() {
             <a href="contact.html">Contact</a>
         `;
     } 
-    // User Navbar
     else {
         navLinks.innerHTML = `
             <a href="index.html">Home</a>
@@ -288,6 +281,23 @@ async function logout() {
     showToast('✅ Logged out successfully!', 'success');
     setTimeout(() => { window.location.href = 'index.html'; }, 1000);
 }
+
+// ===== Dropdown Click Logic =====
+document.addEventListener('click', function(event) {
+    const dropdownBtn = event.target.closest('.dropdown-btn');
+    if (dropdownBtn) {
+        const dropdownContent = dropdownBtn.nextElementSibling;
+        dropdownContent.classList.toggle('show');
+        return;
+    }
+    
+    const dropdowns = document.querySelectorAll('.dropdown-content');
+    dropdowns.forEach(content => {
+        if (!event.target.closest('.dropdown')) {
+            content.classList.remove('show');
+        }
+    });
+});
 
 // ===== Load =====
 document.addEventListener('DOMContentLoaded', () => {
