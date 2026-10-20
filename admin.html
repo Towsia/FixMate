@@ -15,7 +15,7 @@
     <nav class="navbar">
         <div class="logo">Fix<span>Mate</span></div>
         <div class="nav-links" id="navLinks">
-            
+           
         </div>
         <div class="nav-actions" id="navAuth">
             
@@ -48,7 +48,7 @@
 
 <script src="js/main.js"></script>
 <script>
-    let allData = { users: [], providers: [], services: [], bookings: [], reviews: [] };
+    let allData = { users: [], verifiedProviders: [], pendingProviders: [], services: [], bookings: [], reviews: [] };
 
     
     async function fetchAdminData() {
@@ -100,7 +100,7 @@
 
     function renderNidTab() {
         const list = document.getElementById('nidTab');
-        const pendingNids = allData.providers.filter(p => p.nidStatus === 'pending');
+        const pendingNids = allData.pendingProviders.filter(p => p.nidStatus === 'pending');
         if (pendingNids.length === 0) { list.innerHTML = '<p>No pending NID verifications</p>'; return; }
         list.innerHTML = pendingNids.map(p => `
             <div class="booking-item" style="display:flex; justify-content:space-between; align-items:center;">
@@ -139,15 +139,10 @@
         if (type === 'user') {
             content.innerHTML = `<h2 class="section-title" style="margin-bottom:20px;">User Details</h2>` + 
             allData.users.map(u => {
-                
                 const userBookings = allData.bookings.filter(b => b.userId?._id === u._id);
-                
-                const userReviews = allData.reviews.filter(r => r.userId?._id === u._id);
-                
                 return `
                 <div class="booking-item" style="flex-direction:column; align-items:stretch; margin-bottom:20px;">
                     <h3>${u.name} (${u.email})</h3>
-                    
                     <div style="margin-top:12px; padding:12px; background:#f9fafb; border-radius:8px;">
                         <h4 style="color:#0b1a33; margin-bottom:8px;">Bookings (${userBookings.length})</h4>
                         ${userBookings.length > 0 ? userBookings.map(b => `
@@ -156,59 +151,42 @@
                             </p>
                         `).join('') : '<p style="font-size:0.9rem; color:#98a2b3;">No bookings yet</p>'}
                     </div>
-
-                    <div style="margin-top:12px; padding:12px; background:#f9fafb; border-radius:8px;">
-                        <h4 style="color:#0b1a33; margin-bottom:8px;">Reviews (${userReviews.length})</h4>
-                        ${userReviews.length > 0 ? userReviews.map(r => `
-                            <p style="font-size:0.9rem; color:#475467;">
-                                • Rating: ${r.rating} ★ | Service: ${r.serviceId?.title}
-                            </p>
-                        `).join('') : '<p style="font-size:0.9rem; color:#98a2b3;">No reviews yet</p>'}
-                    </div>
                 </div>
                 `;
             }).join('');
         } 
         else if (type === 'provider') {
-            content.innerHTML = `<h2 class="section-title" style="margin-bottom:20px;">Provider Details</h2>` + 
-            allData.providers.map(p => {
-                
+            content.innerHTML = `<h2 class="section-title" style="margin-bottom:20px;">Provider Details</h2>`;
+            
+            // Verified Providers Part
+            content.innerHTML += `<h3 style="margin-top:20px; color:#067647;">Verified Providers (${allData.verifiedProviders.length})</h3>`;
+            content.innerHTML += allData.verifiedProviders.map(p => {
                 const providerServices = allData.services.filter(s => s.providerId?._id === p._id);
-                
-                const providerReviews = allData.reviews.filter(r => r.serviceId && allData.services.find(s => s._id === r.serviceId && s.providerId === p._id));
-
                 return `
-                <div class="booking-item" style="flex-direction:column; align-items:stretch; margin-bottom:20px;">
+                <div class="booking-item" style="flex-direction:column; align-items:stretch; margin-bottom:20px; border-left: 4px solid #067647;">
                     <h3>${p.name} (${p.email})</h3>
-                    
+                    <p><i class="fas fa-id-card"></i> NID: ${p.nidNumber || 'Not Submitted'} | Status: <strong style="color:#067647;">VERIFIED</strong></p>
                     <div style="margin-top:12px; padding:12px; background:#f9fafb; border-radius:8px;">
                         <h4 style="color:#0b1a33; margin-bottom:8px;">Services (${providerServices.length})</h4>
                         ${providerServices.length > 0 ? providerServices.map(s => `
-                            <p style="font-size:0.9rem; color:#475467;">
-                                • ${s.title} | Price: ৳${s.price}
-                            </p>
+                            <p style="font-size:0.9rem; color:#475467;">• ${s.title} | Price: ৳${s.price}</p>
                         `).join('') : '<p style="font-size:0.9rem; color:#98a2b3;">No services yet</p>'}
-                    </div>
-
-                    <div style="margin-top:12px; padding:12px; background:#f9fafb; border-radius:8px;">
-                        <h4 style="color:#0b1a33; margin-bottom:8px;">NID Status</h4>
-                        <p style="font-size:0.9rem; color:#475467;">
-                            NID Number: ${p.nidNumber || 'Not submitted'} <br>
-                            Status: <strong>${(p.nidStatus || 'not_submitted').toUpperCase()}</strong>
-                        </p>
-                    </div>
-
-                    <div style="margin-top:12px; padding:12px; background:#f9fafb; border-radius:8px;">
-                        <h4 style="color:#0b1a33; margin-bottom:8px;">Reviews (${providerReviews.length})</h4>
-                        ${providerReviews.length > 0 ? providerReviews.map(r => `
-                            <p style="font-size:0.9rem; color:#475467;">
-                                • Rating: ${r.rating} ★ | By: ${r.userId?.name}
-                            </p>
-                        `).join('') : '<p style="font-size:0.9rem; color:#98a2b3;">No reviews yet</p>'}
                     </div>
                 </div>
                 `;
             }).join('');
+
+            // Pending Applications Part
+            content.innerHTML += `<h3 style="margin-top:30px; color:#92400e;">Pending Applications (${allData.pendingProviders.length})</h3>`;
+            content.innerHTML += allData.pendingProviders.map(p => `
+                <div class="booking-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-left: 4px solid #92400e;">
+                    <div>
+                        <h3>${p.name} (${p.email})</h3>
+                        <p><i class="fas fa-id-card"></i> NID: ${p.nidNumber || 'Not Submitted'}</p>
+                    </div>
+                    <button class="btn-primary" onclick="approveProvider('${p._id}')">Approve</button>
+                </div>
+            `).join('');
         }
     }
 
@@ -228,6 +206,16 @@
             body: JSON.stringify({ status })
         });
         alert(`NID ${status}!`); location.reload();
+    }
+
+    async function approveProvider(userId) {
+        if (!confirm('Approve this provider?')) return;
+        const token = localStorage.getItem('token');
+        await fetch(`${API}/admin/providers/approve/${userId}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        alert('Provider Approved & Email Sent!'); location.reload();
     }
 
     
