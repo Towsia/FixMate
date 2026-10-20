@@ -15,193 +15,209 @@
     <nav class="navbar">
         <div class="logo">Fix<span>Mate</span></div>
         <div class="nav-links" id="navLinks">
-            <!-- Admin Navbar links -->
+            
         </div>
         <div class="nav-actions" id="navAuth">
-            <!-- Admin Auth Actions & Dropdown -->
+            
         </div>
     </nav>
 
-    <h1 class="section-title" style="margin-top:40px;">Admin Dashboard</h1>
-    <p class="section-sub">Manage Users, Services, and NID Verification</p>
+    <!-- Main Content Area -->
+    <div id="adminMainContent" style="margin-top: 40px;">
+        <h1 class="section-title">Admin Dashboard</h1>
+        <p class="section-sub">Manage all aspects of FixMate</p>
 
-    <!-- Tabs -->
-    <div class="admin-tabs" id="adminTabs">
-        <button class="admin-tab active" id="tabUsersBtn" onclick="showTab('users', this)">All Users</button>
-        <button class="admin-tab" id="tabServicesBtn" onclick="showTab('services', this)">All Services</button>
-        <button class="admin-tab" id="tabNidBtn" onclick="showTab('nid', this)">NID Verify</button>
+        <!-- Tabs -->
+        <div class="admin-tabs" id="adminTabs">
+            <button class="admin-tab active" onclick="showTab('users', this)">All Users</button>
+            <button class="admin-tab" onclick="showTab('services', this)">All Services</button>
+            <button class="admin-tab" onclick="showTab('nid', this)">NID Verify</button>
+        </div>
+
+        <div id="usersTab" class="admin-content"></div>
+        <div id="servicesTab" class="admin-content hidden"></div>
+        <div id="nidTab" class="admin-content hidden"></div>
     </div>
 
-    <!-- Users Tab -->
-    <div id="usersTab" class="admin-content">
-        <div id="usersList"></div>
-    </div>
-
-    <!-- Services Tab -->
-    <div id="servicesTab" class="admin-content hidden">
-        <div id="servicesList"></div>
-    </div>
-
-    <!-- NID Tab -->
-    <div id="nidTab" class="admin-content hidden">
-        <div id="nidList"></div>
-    </div>
-
-    <!-- User Details Section (Dropdown theke ashbe) -->
-    <div id="detailedUserSection" class="admin-content hidden">
-        <h2 class="section-title">Detailed User Information</h2>
-        <div id="detailedUserList"></div>
-    </div>
-
-    <!-- Provider Details Section (Dropdown theke ashbe) -->
-    <div id="detailedProviderSection" class="admin-content hidden">
-        <h2 class="section-title">Detailed Provider Information</h2>
-        <div id="detailedProviderList"></div>
+    <!-- Detailed View Area  -->
+    <div id="detailViewArea" class="hidden" style="margin-top: 40px;">
+        <div id="detailContent"></div>
     </div>
 
 </div>
 
 <script src="js/main.js"></script>
 <script>
-    // Load Admin Dashboard Data
-    async function loadAdminDashboard() {
+    let allData = { users: [], providers: [], services: [], bookings: [], reviews: [] };
+
+    
+    async function fetchAdminData() {
         const token = localStorage.getItem('token');
         if (!token) { window.location.href = 'index.html'; return; }
 
         try {
-            // Load Users
-            const usersRes = await fetch(`${API}/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } });
-            const usersData = await usersRes.json();
-            const usersList = document.getElementById('usersList');
-            if (usersData.success && usersData.users.length > 0) {
-                usersList.innerHTML = usersData.users.map(u => `
-                    <div class="booking-item">
-                        <div class="booking-info">
-                            <h3>${u.name}</h3>
-                            <p><i class="fas fa-envelope"></i> ${u.email}</p>
-                            <p><i class="fas fa-user-tag"></i> ${u.role.toUpperCase()}</p>
-                        </div>
-                        <div class="booking-status">
-                            <button class="btn-cancel" onclick="deleteUser('${u._id}')">Delete</button>
-                        </div>
-                    </div>
-                `).join('');
-            } else { usersList.innerHTML = '<p style="text-align:center;padding:40px;">No users found</p>'; }
-
-            // Load Services
-            const servicesRes = await fetch(`${API}/admin/services`, { headers: { 'Authorization': `Bearer ${token}` } });
-            const servicesData = await servicesRes.json();
-            const servicesList = document.getElementById('servicesList');
-            if (servicesData.success && servicesData.services.length > 0) {
-                servicesList.innerHTML = servicesData.services.map(s => `
-                    <div class="booking-item">
-                        <div class="booking-info">
-                            <h3>${s.title}</h3>
-                            <p><i class="fas fa-tag"></i> ৳${s.price}</p>
-                            <p><i class="fas fa-user"></i> ${s.providerId?.name || 'N/A'}</p>
-                        </div>
-                    </div>
-                `).join('');
-            } else { servicesList.innerHTML = '<p style="text-align:center;padding:40px;">No services found</p>'; }
-
-            // Load NID
-            const nidRes = await fetch(`${API}/admin/nid-list`, { headers: { 'Authorization': `Bearer ${token}` } });
-            const nidData = await nidRes.json();
-            const nidList = document.getElementById('nidList');
-            if (nidData.success && nidData.users.length > 0) {
-                nidList.innerHTML = nidData.users.map(u => `
-                    <div class="booking-item" style="flex-direction:column; align-items:stretch; padding:24px;">
-                        <h3>${u.name}</h3>
-                        <p><i class="fas fa-id-card"></i> NID: ${u.nidNumber || 'Not Submitted'}</p>
-                        <p>Status: <span style="color:${u.nidStatus === 'verified' ? '#067647' : '#92400e'}; font-weight:600;">${(u.nidStatus || 'not_submitted').toUpperCase()}</span></p>
-                        <div style="display:flex; gap:12px; margin-top:12px;">
-                            ${u.nidStatus === 'pending' ? `
-                                <button class="btn-primary" onclick="verifyNid('${u._id}', 'verified')" style="padding:8px 16px;">✅ Verify</button>
-                                <button class="btn-cancel" onclick="verifyNid('${u._id}', 'rejected')">❌ Reject</button>
-                            ` : ''}
-                        </div>
-                    </div>
-                `).join('');
-            } else { nidList.innerHTML = '<p style="text-align:center;padding:40px;">No NID submissions</p>'; }
-
-        } catch (error) { console.error(error); }
-    }
-
-    // Check if Redirect from Dropdown
-    window.addEventListener('DOMContentLoaded', () => {
-        loadAdminDashboard();
-        const dropdownTarget = localStorage.getItem('dropdownTarget');
-        if (dropdownTarget) {
-            localStorage.removeItem('dropdownTarget');
-            showDetailSection(dropdownTarget);
-        }
-    });
-
-    // Show Detail Section from Dropdown
-    async function showDetailSection(type) {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        // Hide all tabs
-        document.querySelectorAll('.admin-tabs, .admin-content').forEach(c => c.classList.add('hidden'));
-
-        if (type === 'user-details') {
-            document.getElementById('detailedUserSection').classList.remove('hidden');
-            const res = await fetch(`${API}/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const res = await fetch(`${API}/admin/details`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             const data = await res.json();
-            const list = document.getElementById('detailedUserList');
             if (data.success) {
-                const usersOnly = data.users.filter(u => u.role === 'user');
-                list.innerHTML = usersOnly.map(u => `
-                    <div class="booking-item" style="flex-direction:column; align-items:stretch;">
-                        <h3>${u.name}</h3>
-                        <p><i class="fas fa-envelope"></i> ${u.email}</p>
-                        <p><i class="fas fa-phone"></i> ${u.phone || 'N/A'}</p>
-                        <p><i class="fas fa-map-marker-alt"></i> ${u.address || 'N/A'}</p>
-                        <p><i class="fas fa-check-circle"></i> Verified: ${u.isVerified ? 'Yes' : 'No'}</p>
-                    </div>
-                `).join('');
+                allData = data;
+                renderUsersTab();
+                renderServicesTab();
+                renderNidTab();
             }
-        } else if (type === 'provider-details') {
-            document.getElementById('detailedProviderSection').classList.remove('hidden');
-            const res = await fetch(`${API}/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } });
-            const data = await res.json();
-            const list = document.getElementById('detailedProviderList');
-            if (data.success) {
-                const providersOnly = data.users.filter(u => u.role === 'provider');
-                list.innerHTML = providersOnly.map(u => `
-                    <div class="booking-item" style="flex-direction:column; align-items:stretch;">
-                        <h3>${u.name}</h3>
-                        <p><i class="fas fa-envelope"></i> ${u.email}</p>
-                        <p><i class="fas fa-phone"></i> ${u.phone || 'N/A'}</p>
-                        <p><i class="fas fa-map-marker-alt"></i> ${u.address || 'N/A'}</p>
-                        <p><i class="fas fa-id-card"></i> NID: ${u.nidNumber || 'Not Submitted'}</p>
-                        <p>NID Status: <span style="color:${u.nidStatus === 'verified' ? '#067647' : '#92400e'}; font-weight:600;">${(u.nidStatus || 'not_submitted').toUpperCase()}</span></p>
-                    </div>
-                `).join('');
-            }
+        } catch (error) {
+            console.error('Error loading admin data:', error);
         }
     }
 
-    // Tab Switching (Restore visibility)
+    
+    function renderUsersTab() {
+        const list = document.getElementById('usersTab');
+        if (allData.users.length === 0) { list.innerHTML = '<p>No users found</p>'; return; }
+        list.innerHTML = allData.users.map(u => `
+            <div class="booking-item" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3>${u.name}</h3>
+                    <p><i class="fas fa-envelope"></i> ${u.email}</p>
+                </div>
+                <button class="btn-cancel" onclick="deleteUser('${u._id}')">Delete</button>
+            </div>
+        `).join('');
+    }
+
+    function renderServicesTab() {
+        const list = document.getElementById('servicesTab');
+        if (allData.services.length === 0) { list.innerHTML = '<p>No services found</p>'; return; }
+        list.innerHTML = allData.services.map(s => `
+            <div class="booking-item">
+                <h3>${s.title}</h3>
+                <p><i class="fas fa-tag"></i> ৳${s.price}</p>
+                <p><i class="fas fa-user"></i> Provider: ${s.providerId?.name || 'N/A'}</p>
+            </div>
+        `).join('');
+    }
+
+    function renderNidTab() {
+        const list = document.getElementById('nidTab');
+        const pendingNids = allData.providers.filter(p => p.nidStatus === 'pending');
+        if (pendingNids.length === 0) { list.innerHTML = '<p>No pending NID verifications</p>'; return; }
+        list.innerHTML = pendingNids.map(p => `
+            <div class="booking-item" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3>${p.name}</h3>
+                    <p><i class="fas fa-id-card"></i> NID: ${p.nidNumber}</p>
+                </div>
+                <div>
+                    <button class="btn-primary" onclick="verifyNid('${p._id}', 'verified')" style="margin-right:8px;">Verify</button>
+                    <button class="btn-cancel" onclick="verifyNid('${p._id}', 'rejected')">Reject</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    
     function showTab(tab, btn) {
-        document.querySelectorAll('.admin-tabs, .admin-content').forEach(c => c.classList.remove('hidden'));
         document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.admin-content').forEach(c => c.classList.add('hidden'));
-        
-        document.getElementById(`${tab}Tab`).classList.remove('hidden');
         btn.classList.add('active');
-        document.getElementById('detailedUserSection').classList.add('hidden');
-        document.getElementById('detailedProviderSection').classList.add('hidden');
+        document.getElementById(`${tab}Tab`).classList.remove('hidden');
+        
+        
+        document.getElementById('detailViewArea').classList.add('hidden');
+        document.getElementById('adminMainContent').classList.remove('hidden');
     }
 
-    // Delete User & Verify NID functions
+    
+    function showAdminSection(type) {
+        
+        document.getElementById('adminMainContent').classList.add('hidden');
+        const detailArea = document.getElementById('detailViewArea');
+        const content = document.getElementById('detailContent');
+        detailArea.classList.remove('hidden');
+
+        if (type === 'user') {
+            content.innerHTML = `<h2 class="section-title" style="margin-bottom:20px;">User Details</h2>` + 
+            allData.users.map(u => {
+                
+                const userBookings = allData.bookings.filter(b => b.userId?._id === u._id);
+                
+                const userReviews = allData.reviews.filter(r => r.userId?._id === u._id);
+                
+                return `
+                <div class="booking-item" style="flex-direction:column; align-items:stretch; margin-bottom:20px;">
+                    <h3>${u.name} (${u.email})</h3>
+                    
+                    <div style="margin-top:12px; padding:12px; background:#f9fafb; border-radius:8px;">
+                        <h4 style="color:#0b1a33; margin-bottom:8px;">Bookings (${userBookings.length})</h4>
+                        ${userBookings.length > 0 ? userBookings.map(b => `
+                            <p style="font-size:0.9rem; color:#475467;">
+                                • Service: ${b.serviceId?.title} | Status: <strong>${b.status}</strong>
+                            </p>
+                        `).join('') : '<p style="font-size:0.9rem; color:#98a2b3;">No bookings yet</p>'}
+                    </div>
+
+                    <div style="margin-top:12px; padding:12px; background:#f9fafb; border-radius:8px;">
+                        <h4 style="color:#0b1a33; margin-bottom:8px;">Reviews (${userReviews.length})</h4>
+                        ${userReviews.length > 0 ? userReviews.map(r => `
+                            <p style="font-size:0.9rem; color:#475467;">
+                                • Rating: ${r.rating} ★ | Service: ${r.serviceId?.title}
+                            </p>
+                        `).join('') : '<p style="font-size:0.9rem; color:#98a2b3;">No reviews yet</p>'}
+                    </div>
+                </div>
+                `;
+            }).join('');
+        } 
+        else if (type === 'provider') {
+            content.innerHTML = `<h2 class="section-title" style="margin-bottom:20px;">Provider Details</h2>` + 
+            allData.providers.map(p => {
+                
+                const providerServices = allData.services.filter(s => s.providerId?._id === p._id);
+                
+                const providerReviews = allData.reviews.filter(r => r.serviceId && allData.services.find(s => s._id === r.serviceId && s.providerId === p._id));
+
+                return `
+                <div class="booking-item" style="flex-direction:column; align-items:stretch; margin-bottom:20px;">
+                    <h3>${p.name} (${p.email})</h3>
+                    
+                    <div style="margin-top:12px; padding:12px; background:#f9fafb; border-radius:8px;">
+                        <h4 style="color:#0b1a33; margin-bottom:8px;">Services (${providerServices.length})</h4>
+                        ${providerServices.length > 0 ? providerServices.map(s => `
+                            <p style="font-size:0.9rem; color:#475467;">
+                                • ${s.title} | Price: ৳${s.price}
+                            </p>
+                        `).join('') : '<p style="font-size:0.9rem; color:#98a2b3;">No services yet</p>'}
+                    </div>
+
+                    <div style="margin-top:12px; padding:12px; background:#f9fafb; border-radius:8px;">
+                        <h4 style="color:#0b1a33; margin-bottom:8px;">NID Status</h4>
+                        <p style="font-size:0.9rem; color:#475467;">
+                            NID Number: ${p.nidNumber || 'Not submitted'} <br>
+                            Status: <strong>${(p.nidStatus || 'not_submitted').toUpperCase()}</strong>
+                        </p>
+                    </div>
+
+                    <div style="margin-top:12px; padding:12px; background:#f9fafb; border-radius:8px;">
+                        <h4 style="color:#0b1a33; margin-bottom:8px;">Reviews (${providerReviews.length})</h4>
+                        ${providerReviews.length > 0 ? providerReviews.map(r => `
+                            <p style="font-size:0.9rem; color:#475467;">
+                                • Rating: ${r.rating} ★ | By: ${r.userId?.name}
+                            </p>
+                        `).join('') : '<p style="font-size:0.9rem; color:#98a2b3;">No reviews yet</p>'}
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+    }
+
+    
     async function deleteUser(id) {
         if (!confirm('Delete this user?')) return;
         const token = localStorage.getItem('token');
         await fetch(`${API}/admin/users/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-        alert('User Deleted!');
-        location.reload();
+        alert('User deleted!'); location.reload();
     }
 
     async function verifyNid(userId, status) {
@@ -211,9 +227,18 @@
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ status })
         });
-        alert('NID Status Updated!');
-        location.reload();
+        alert(`NID ${status}!`); location.reload();
     }
+
+    
+    window.addEventListener('DOMContentLoaded', () => {
+        fetchAdminData();
+        const dropdownTarget = localStorage.getItem('dropdownTarget');
+        if (dropdownTarget) {
+            localStorage.removeItem('dropdownTarget');
+            showAdminSection(dropdownTarget);
+        }
+    });
 </script>
 </body>
 </html>

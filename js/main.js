@@ -230,15 +230,15 @@ function updateNavLinks() {
         `;
         // Dropdown append
         const navActions = document.getElementById('navAuth');
-        if (navActions) {
+        if (navActions && !navActions.querySelector('.dropdown')) {
             navActions.insertAdjacentHTML('afterbegin', `
                 <div class="dropdown" style="margin-right:12px;">
                     <button class="btn-primary dropdown-btn" style="padding:8px 16px; font-size:0.9rem;">
                         Details <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="dropdown-content">
-                        <a href="#" onclick="openDropdownDetails('user-details')"><i class="fas fa-users"></i> User Details</a>
-                        <a href="#" onclick="openDropdownDetails('provider-details')"><i class="fas fa-user-tie"></i> Provider Details</a>
+                        <a href="#" onclick="openDropdownDetails('user')"><i class="fas fa-users"></i> User Details</a>
+                        <a href="#" onclick="openDropdownDetails('provider')"><i class="fas fa-user-tie"></i> Provider Details</a>
                     </div>
                 </div>
             `);
