@@ -62,7 +62,7 @@ function switchTab(tab) {
     if (msg) { msg.className = 'message-box'; msg.textContent = ''; }
 }
 
-// ===== Toast Notification =====
+// ===== Toast =====
 function showToast(message, type = 'success') {
     const existingToast = document.querySelector('.toast');
     if (existingToast) existingToast.remove();
@@ -76,7 +76,7 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-// ===== Password Show/Hide =====
+// ===== Password Toggle =====
 function togglePassword(inputId, button) {
     const input = document.getElementById(inputId);
     if (!input) return;
@@ -107,9 +107,9 @@ async function handleSignIn(e) {
                 showToast('✅ Admin Login successful!', 'success');
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
-                setTimeout(() => { 
-                    closeModal(); 
-                    window.location.href = 'admin.html'; 
+                setTimeout(() => {
+                    closeModal();
+                    window.location.href = 'admin-dashboard.html';
                 }, 1500);
             } else {
                 showToast('❌ Admin login failed', 'error');
@@ -131,10 +131,10 @@ async function handleSignIn(e) {
             showToast('✅ Login successful! Welcome ' + data.user.name, 'success');
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
-            setTimeout(() => { 
-                closeModal(); 
-                updateNavbar(); 
-                updateNavLinks(); 
+            setTimeout(() => {
+                closeModal();
+                updateNavbar();
+                updateNavLinks();
             }, 1500);
         } else {
             showToast('❌ ' + data.message, 'error');
@@ -177,13 +177,13 @@ function updateNavbar() {
     if (!navAuth) return;
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
-    
+
     if (token && userStr) {
         try {
             const user = JSON.parse(userStr);
             let profileLink = 'profile.html';
             if (user.role === 'admin') profileLink = 'admin-profile.html';
-            
+
             navAuth.innerHTML = `
                 <a href="${profileLink}" class="btn-outline" style="text-decoration:none; display:flex; align-items:center; gap:8px;">
                     <i class="fas fa-user-circle"></i> ${user.name.split(' ')[0]}'s Profile
@@ -217,12 +217,12 @@ function updateNavLinks() {
             <a href="about.html">About</a>
             <a href="contact.html">Contact</a>
         `;
-    } 
+    }
     else if (role === 'admin') {
         navLinks.innerHTML = `
             <a href="index.html">Home</a>
             <a href="services.html">Services</a>
-            <a href="admin.html">Admin Panel</a>
+            <a href="admin-dashboard.html">Admin Panel</a>
         `;
         const navActions = document.getElementById('navAuth');
         if (navActions && !navActions.querySelector('.dropdown')) {
@@ -247,7 +247,7 @@ function updateNavLinks() {
             <a href="provider-dashboard.html">Dashboard</a>
             <a href="contact.html">Contact</a>
         `;
-    } 
+    }
     else {
         navLinks.innerHTML = `
             <a href="index.html">Home</a>
@@ -259,9 +259,9 @@ function updateNavLinks() {
     }
 }
 
+// ===== Dropdown Details Navigation (URL query, no localStorage) =====
 function openDropdownDetails(type) {
-    localStorage.setItem('dropdownTarget', type);
-    window.location.href = 'admin.html';
+    window.location.href = 'admin-details.html?view=' + type;
 }
 
 // ===== Logout =====
@@ -290,7 +290,7 @@ document.addEventListener('click', function(event) {
         dropdownContent.classList.toggle('show');
         return;
     }
-    
+
     const dropdowns = document.querySelectorAll('.dropdown-content');
     dropdowns.forEach(content => {
         if (!event.target.closest('.dropdown')) {

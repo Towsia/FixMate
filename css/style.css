@@ -91,7 +91,7 @@ body {
 }
 
 .dropdown-content {
-    display: none; /* By default hidden */
+    display: none;
     position: absolute;
     top: 100%;
     right: 0;
@@ -105,9 +105,8 @@ body {
     border: 1px solid #eaecf0;
 }
 
-/* This class will be toggled via JavaScript */
 .dropdown-content.show {
-    display: block; 
+    display: block;
 }
 
 .dropdown-content a {

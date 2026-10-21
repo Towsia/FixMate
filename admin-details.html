@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Details · FixMate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="container">
+    <nav class="navbar">
+        <div class="logo">Fix<span>Mate</span></div>
+        <div class="nav-links" id="navLinks"></div>
+        <div class="nav-actions" id="navAuth"></div>
+    </nav>
+
+    <div style="margin-top: 30px;">
+        <a href="admin-dashboard.html" class="btn-outline" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+            <i class="fas fa-arrow-left"></i> Back to Admin Panel
+        </a>
+    </div>
+
+    <div id="detailViewArea" style="margin-top: 30px;"></div>
+</div>
+
+<script src="js/main.js"></script>
+<script>
+    let allData = { users: [], verifiedProviders: [], pendingProviders: [], services: [], bookings: [] };
+
+    async function fetchAdminData() {
+        const token = localStorage.getItem('token');
+        if (!token) { window.location.href = 'index.html'; return; }
+        try {
+            const res = await fetch(`${API}/admin/details`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                allData = data;
+                renderDetails();
+            }
+        } catch (error) { console.error('Error:', error); }
+    }
+
+    function renderDetails() {
+        const params = new URLSearchParams(window.location.search);
+        const target = params.get('view');
+        const content = document.getElementById('detailViewArea');
+
+        if (!target) {
+            content.innerHTML = `<h2 class="section-title">No Details Selected</h2>
+                <p>Please choose User Details or Provider Details from the navbar.</p>`;
+            return;
+        }
+
+        if (target === 'user') {
+            content.innerHTML = `<h1 class="section-title">User Details</h1>` +
+            allData.users.map(u => {
+                const userBookings = allData.bookings.filter(b => b.userId?._id === u._id);
+                return `
+                <div class="booking-item" style="flex-direction:column; align-items:stretch; margin-bottom:20px;">
+                    <h2 style="color:#0b1a33; margin-bottom:8px;">${u.name}</h2>
+                    <p><i class="fas fa-envelope"></i> Email: ${u.email}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Address: ${u.address || 'N/A'}</p>
+                    <p><i class="fas fa-phone"></i> Phone: ${u.phone || 'N/A'}</p>
+                    <div style="margin-top:16px; padding:16px; background:#f9fafb; border-radius:12px;">
+                        <h4 style="color:#0b1a33; margin-bottom:12px;">Services Booked (${userBookings.length})</h4>
+                        ${userBookings.length > 0 ? userBookings.map(b => `
+                            <p style="font-size:0.95rem; color:#475467; margin-bottom:8px;">
+                                • <strong>${b.serviceId?.title || 'Service'}</strong> | Status: <strong>${b.status}</strong>
+                            </p>
+                        `).join('') : '<p style="font-size:0.95rem; color:#98a2b3;">No services booked yet.</p>'}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+        else if (target === 'provider') {
+            content.innerHTML = `<h1 class="section-title">Provider Details</h1>`;
+
+            content.innerHTML += `<h3 style="margin-top:20px; color:#067647; border-bottom:2px solid #067647; padding-bottom:8px;">Verified Providers (${allData.verifiedProviders.length})</h3>`;
+            if (allData.verifiedProviders.length === 0) {
+                content.innerHTML += `<p style="color:#98a2b3; padding:20px 0;">No verified providers yet.</p>`;
+            } else {
+                content.innerHTML += allData.verifiedProviders.map(p => {
+                    const providerServices = allData.services.filter(s => s.providerId?._id === p._id);
+                    return `
+                    <div class="booking-item" style="flex-direction:column; align-items:stretch; margin-bottom:20px; border-left: 4px solid #067647;">
+                        <h2 style="color:#0b1a33; margin-bottom:8px;">${p.name}</h2>
+                        <p><i class="fas fa-envelope"></i> Email: ${p.email}</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Address: ${p.address || 'N/A'}</p>
+                        <p><i class="fas fa-id-card"></i> NID: ${p.nidNumber || 'Not Submitted'}</p>
+                        <div style="margin-top:16px; padding:16px; background:#f9fafb; border-radius:12px;">
+                            <h4 style="color:#0b1a33; margin-bottom:12px;">Services Provided (${providerServices.length})</h4>
+                            ${providerServices.length > 0 ? providerServices.map(s => `
+                                <p style="font-size:0.95rem; color:#475467; margin-bottom:8px;">• ${s.title} | Price: ৳${s.price}</p>
+                            `).join('') : '<p style="font-size:0.95rem; color:#98a2b3;">No services provided yet.</p>'}
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            content.innerHTML += `<h3 style="margin-top:40px; color:#92400e; border-bottom:2px solid #92400e; padding-bottom:8px;">Pending Applications (${allData.pendingProviders.length})</h3>`;
+            if (allData.pendingProviders.length === 0) {
+                content.innerHTML += `<p style="color:#98a2b3; padding:20px 0;">No pending applications.</p>`;
+            } else {
+                content.innerHTML += allData.pendingProviders.map(p => `
+                    <div class="booking-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-left: 4px solid #92400e;">
+                        <div>
+                            <h2 style="color:#0b1a33; margin-bottom:8px;">${p.name}</h2>
+                            <p><i class="fas fa-envelope"></i> Email: ${p.email}</p>
+                            <p><i class="fas fa-id-card"></i> NID: ${p.nidNumber || 'Not Submitted'}</p>
+                        </div>
+                        <button class="btn-primary" onclick="approveProvider('${p._id}')" style="padding:10px 24px;">Approve</button>
+                    </div>`).join('');
+            }
+        }
+    }
+
+    async function approveProvider(userId) {
+        if (!confirm('Approve this provider?')) return;
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API}/admin/providers/approve/${userId}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            alert('Provider Approved & Email Sent!');
+            location.reload();
+        } else {
+            alert('Error approving provider');
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', fetchAdminData);
+</script>
+</body>
+</html>

@@ -17,21 +17,17 @@
         <div class="nav-actions" id="navAuth"></div>
     </nav>
 
-    <div id="adminMainContent" style="margin-top: 40px;">
+    <div style="margin-top: 40px;">
         <h1 class="section-title">Admin Dashboard</h1>
-        <p class="section-sub">Manage all aspects of FixMate</p>
+        <p class="section-sub">Manage users and services</p>
 
-        <div class="admin-tabs" id="adminTabs">
+        <div class="admin-tabs">
             <button class="admin-tab active" onclick="showTab('users', this)">All Users</button>
             <button class="admin-tab" onclick="showTab('services', this)">Manage Services</button>
         </div>
 
         <div id="usersTab" class="admin-content"></div>
         <div id="servicesTab" class="admin-content hidden"></div>
-    </div>
-
-    <div id="detailViewArea" class="hidden" style="margin-top: 40px;">
-        <div id="detailContent"></div>
     </div>
 </div>
 
@@ -42,7 +38,6 @@
     async function fetchAdminData() {
         const token = localStorage.getItem('token');
         if (!token) { window.location.href = 'index.html'; return; }
-
         try {
             const res = await fetch(`${API}/admin/details`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -56,7 +51,6 @@
         } catch (error) { console.error('Error:', error); }
     }
 
-    // ==== Tab 1: Users ====
     function renderUsersTab() {
         const list = document.getElementById('usersTab');
         if (allData.users.length === 0) { list.innerHTML = '<p>No users found</p>'; return; }
@@ -68,10 +62,8 @@
         `).join('');
     }
 
-    // ==== Tab 2: Manage Services ====
     function renderServicesTab() {
         const list = document.getElementById('servicesTab');
-        
         let html = `
             <div style="background:#f9fafb; padding:20px; border-radius:12px; margin-bottom:30px;">
                 <h3 style="margin-bottom:15px;">Add New Service</h3>
@@ -83,14 +75,13 @@
                 </div>
             </div>
         `;
-
-        if (allData.services.length === 0) { html += '<p>No services found</p>'; } 
+        if (allData.services.length === 0) { html += '<p>No services found</p>'; }
         else {
             html += allData.services.map(s => `
                 <div class="booking-item" style="display:flex; justify-content:space-between; align-items:center;">
                     <div>
                         <h3>${s.title}</h3>
-                        <p>Price: ৳<span id="price-${s._id}">${s.price}</span></p>
+                        <p>Price: ৳${s.price}</p>
                         <p>Provider: ${s.providerId?.name || 'N/A'}</p>
                     </div>
                     <div style="display:flex; gap:8px;">
@@ -103,14 +94,11 @@
         list.innerHTML = html;
     }
 
-    // ==== Service Functions ====
     async function addService() {
         const title = document.getElementById('newSrvTitle').value;
         const price = document.getElementById('newSrvPrice').value;
         const categoryId = document.getElementById('newSrvCategory').value;
-        
         if (!title || !price || !categoryId) { alert('Please fill all fields'); return; }
-
         const token = localStorage.getItem('token');
         const res = await fetch(`${API}/services`, {
             method: 'POST',
@@ -124,7 +112,6 @@
     async function editService(id, oldPrice) {
         const newPrice = prompt('Enter new price:', oldPrice);
         if (!newPrice) return;
-
         const token = localStorage.getItem('token');
         const res = await fetch(`${API}/services/${id}`, {
             method: 'PUT',
@@ -144,61 +131,6 @@
         if (res.ok) { alert('Service Deleted!'); location.reload(); }
     }
 
-    // ==== Dropdown Sections ====
-    function showAdminSection(type) {
-        document.getElementById('adminMainContent').classList.add('hidden');
-        const detailArea = document.getElementById('detailViewArea');
-        const content = document.getElementById('detailContent');
-        detailArea.classList.remove('hidden');
-
-        if (type === 'user') {
-            content.innerHTML = `<h2 class="section-title" style="margin-bottom:20px;">User Details</h2>` + 
-            allData.users.map(u => {
-                const userBookings = allData.bookings.filter(b => b.userId?._id === u._id);
-                return `
-                <div class="booking-item" style="flex-direction:column; align-items:stretch; margin-bottom:20px;">
-                    <h3>${u.name} (${u.email})</h3>
-                    <div style="margin-top:12px; padding:12px; background:#f9fafb; border-radius:8px;">
-                        <h4 style="color:#0b1a33; margin-bottom:8px;">Bookings (${userBookings.length})</h4>
-                        ${userBookings.length > 0 ? userBookings.map(b => `
-                            <p style="font-size:0.9rem; color:#475467;">• ${b.serviceId?.title} | Status: <strong>${b.status}</strong></p>
-                        `).join('') : '<p style="font-size:0.9rem; color:#98a2b3;">No bookings yet</p>'}
-                    </div>
-                </div>`;
-            }).join('');
-        } 
-        else if (type === 'provider') {
-            content.innerHTML = `<h2 class="section-title" style="margin-bottom:20px;">Provider Details</h2>`;
-            
-            content.innerHTML += `<h3 style="margin-top:20px; color:#067647; border-bottom:2px solid #067647; padding-bottom:5px;">Verified Providers (${allData.verifiedProviders.length})</h3>`;
-            if (allData.verifiedProviders.length === 0) content.innerHTML += `<p style="color:#98a2b3;">No verified providers yet.</p>`;
-            else {
-                content.innerHTML += allData.verifiedProviders.map(p => {
-                    const providerServices = allData.services.filter(s => s.providerId?._id === p._id);
-                    return `
-                    <div class="booking-item" style="flex-direction:column; align-items:stretch; margin-bottom:20px; border-left: 4px solid #067647;">
-                        <h3>${p.name} (${p.email})</h3>
-                        <p>NID: ${p.nidNumber || 'Not Submitted'}</p>
-                        <div style="margin-top:12px; padding:12px; background:#f9fafb; border-radius:8px;">
-                            <h4>Services (${providerServices.length})</h4>
-                            ${providerServices.length > 0 ? providerServices.map(s => `<p style="font-size:0.9rem; color:#475467;">• ${s.title} | ৳${s.price}</p>`).join('') : '<p style="font-size:0.9rem; color:#98a2b3;">No services yet</p>'}
-                        </div>
-                    </div>`;
-                }).join('');
-            }
-
-            content.innerHTML += `<h3 style="margin-top:40px; color:#92400e; border-bottom:2px solid #92400e; padding-bottom:5px;">Pending Applications (${allData.pendingProviders.length})</h3>`;
-            if (allData.pendingProviders.length === 0) content.innerHTML += `<p style="color:#98a2b3;">No pending applications.</p>`;
-            else {
-                content.innerHTML += allData.pendingProviders.map(p => `
-                    <div class="booking-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-left: 4px solid #92400e;">
-                        <div><h3>${p.name} (${p.email})</h3><p>NID: ${p.nidNumber || 'Not Submitted'}</p></div>
-                        <button class="btn-primary" onclick="approveProvider('${p._id}')" style="padding:8px 16px;">Approve</button>
-                    </div>`).join('');
-            }
-        }
-    }
-
     async function deleteUser(id) {
         if (!confirm('Delete this user?')) return;
         const token = localStorage.getItem('token');
@@ -206,30 +138,14 @@
         location.reload();
     }
 
-    async function approveProvider(userId) {
-        if (!confirm('Approve this provider?')) return;
-        const token = localStorage.getItem('token');
-        await fetch(`${API}/admin/providers/approve/${userId}`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}` } });
-        alert('Approved & Email Sent!'); location.reload();
-    }
-
     function showTab(tab, btn) {
         document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.admin-content').forEach(c => c.classList.add('hidden'));
         btn.classList.add('active');
         document.getElementById(`${tab}Tab`).classList.remove('hidden');
-        document.getElementById('detailViewArea').classList.add('hidden');
-        document.getElementById('adminMainContent').classList.remove('hidden');
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        fetchAdminData();
-        const dropdownTarget = localStorage.getItem('dropdownTarget');
-        if (dropdownTarget) {
-            localStorage.removeItem('dropdownTarget');
-            setTimeout(() => showAdminSection(dropdownTarget), 500); 
-        }
-    });
+    window.addEventListener('DOMContentLoaded', fetchAdminData);
 </script>
 </body>
 </html>

@@ -4,10 +4,10 @@ const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { 
-    type: String, 
-    enum: ['user', 'provider', 'admin'], 
-    default: 'user' 
+  role: {
+    type: String,
+    enum: ['user', 'provider', 'admin'],
+    default: 'user'
   },
   phone: { type: String },
   address: { type: String },
@@ -19,8 +19,13 @@ const UserSchema = new mongoose.Schema({
   nidNumber: { type: String },
   nidFrontImage: { type: String },
   nidBackImage: { type: String },
-  nidStatus: { type: String, enum: ['not_submitted', 'pending', 'verified', 'rejected'], default: 'not_submitted' },
+  nidStatus: {
+    type: String,
+    enum: ['not_submitted', 'pending', 'verified', 'rejected'],
+    default: 'not_submitted'
+  },
   isNidVerified: { type: Boolean, default: false },
+  isProviderVerified: { type: Boolean, default: false },
   location: {
     type: { type: String, enum: ['Point'], default: 'Point' },
     coordinates: { type: [Number], default: [0, 0] }
